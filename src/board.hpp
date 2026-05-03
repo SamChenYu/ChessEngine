@@ -7,7 +7,7 @@ class board {
 public:
 
     board();
-    explicit board(std::string_view);
+    explicit board(const std::string str);
 
     ~board() = default;
 
@@ -16,15 +16,6 @@ public:
 
     board(board&&) = default;
     board& operator=(board&&) = default;
-
-    static bool valid_fen(std::string_view str) {
-        if (str.length() < 2) return false;
-
-        
-
-
-        return true;
-    }
 
 
 

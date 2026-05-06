@@ -44,8 +44,8 @@ public:
 
 private:
     // There's probably a better way to arrange this for padding and cache locality
-    unsigned long long white[6] = {};    // PKBRQK
-    unsigned long long black[6] = {};    // PKBRQK
+    unsigned long long white[6] = {0};    // PKBRQK
+    unsigned long long black[6] = {0};    // PKBRQK
     bool white_turn;
     short castling;                 // bit shifted KQkq
     short enpassant;

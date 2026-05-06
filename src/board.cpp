@@ -25,7 +25,7 @@ board::board(const std::string str) {
 
 
     // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR
-    // h8.......................................a1
+    // a8....h8...........................a1....h1
 
     /*
        Chess Board (ranks/files)        Bitboard Indices
@@ -43,7 +43,7 @@ board::board(const std::string str) {
     */
 
 
-    int current_square{63};
+    int current_square{56};
     while (!split[0].empty()) {
 
         switch (split[0][0]) {
@@ -84,17 +84,21 @@ board::board(const std::string str) {
                 black[KING] |= 1ULL << current_square;
                 break;
             case '/':
-                break;
+                current_square -= 16;
+                split[0].remove_prefix(1);
+                continue;
             default:
                 int empty_squares;
                 auto result = std::from_chars(split[0].data(), split[0].data()+1, empty_squares);
-                if (result.ec == std::errc::invalid_argument || (empty_squares > 8 || empty_squares < 0)) {
+                if (result.ec == std::errc::invalid_argument || empty_squares > 8 || empty_squares < 0) {
                     throw std::invalid_argument("Invalid FEN string: invalid character in pieces");
                 }
-                current_square -= empty_squares + 1;
+                current_square += empty_squares;
+                split[0].remove_prefix(1);
+                continue;
 
         }
-        current_square--;
+        current_square++;
         split[0].remove_prefix(1);
     }
 

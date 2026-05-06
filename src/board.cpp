@@ -102,7 +102,6 @@ board::board(const std::string str) {
         split[0].remove_prefix(1);
     }
 
-
     if (split[1] == "w")
         white_turn = true;
     else if (split[1] == "b")
@@ -130,7 +129,7 @@ board::board(const std::string str) {
                 break;
             case 'q':
                 if (castling == 1)
-                    throw std::invalid_argument("Invalid FEN string: castling has multiple 'K'");
+                    throw std::invalid_argument("Invalid FEN string: castling has multiple 'q'");
                 castling |= 1 << 0;
                 break;
             default:

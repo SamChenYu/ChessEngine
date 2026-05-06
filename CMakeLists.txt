@@ -9,4 +9,6 @@ add_executable(CppChessEngine
         src/board.hpp
         src/board.cpp
         src/main.cpp
+        src/engine/eval.hpp
+        src/engine/eval.cpp
 )

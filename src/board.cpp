@@ -133,7 +133,7 @@ board::board(const std::string str) {
                 castling |= 1 << 0;
                 break;
             default:
-                throw std::invalid_argument("Invalid FEN string: unrecognized castling character: "  + split[2][0]);
+                throw std::invalid_argument("Invalid FEN string: unrecognized castling character");
         }
         split[2].remove_prefix(1);
     }

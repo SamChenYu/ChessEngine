@@ -2,8 +2,12 @@
 #include <ranges>
 #include <string_view>
 #include <iostream>
+#include "engine/eval/eval.hpp"
 
 class board {
+
+    friend class eval;
+
 public:
 
     board();
@@ -20,15 +24,13 @@ public:
 #ifdef CPPCHESSENGINE_DEBUG
 
 #include <array>
-
     std::array<unsigned long long, 6> get_white_bitboards() const {
-        return std::to_array(white);
+        return white;
     }
 
     std::array<unsigned long long, 6> get_black_bitboards() const {
-        return std::to_array(black);
+        return black;
     }
-
 
     void print_bitboard(unsigned long long bb) {
         for (int rank = 7; rank >= 0; --rank) {
@@ -44,8 +46,8 @@ public:
 
 private:
     // There's probably a better way to arrange this for padding and cache locality
-    unsigned long long white[6] = {0};    // PKBRQK
-    unsigned long long black[6] = {0};    // PKBRQK
+    std::array<unsigned long long, 6> white = {0};    // PKBRQK
+    std::array<unsigned long long, 6> black = {0};    // PKBRQK
     bool white_turn;
     short castling;                 // bit shifted KQkq
     short enpassant;

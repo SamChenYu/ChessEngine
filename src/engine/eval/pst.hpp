@@ -1,15 +1,19 @@
 #pragma once
-#include "../board.hpp"
 #include <array>
-
-static float eval(const board& b);
 
 namespace pst {
 
-    constexpr int mirror(const int sq) {
+    inline std::array<int, 6> PIECE_VALUES = {
+        1, 3, 3, 5, 9, 1000
+    };
+
+
+    inline constexpr int mirror(const int sq) {
         return sq ^ 56;
     }
 
+
+    // Todo: check that these align with the board.hpp bits
     constexpr std::array<int, 64> PAWN = {
          0,   0,   0,   0,   0,   0,  0,   0,
         -35, -1, -20, -23, -15, 24, 38, -22,
@@ -75,5 +79,8 @@ namespace pst {
          29, -1,-20, -7, -8, -4,-38,-29,
         -65, 23, 16,-15,-56,-34,  2, 13
     };
-}
 
+    constexpr std::array<std::array<int, 64>, 6> PST = {
+        PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
+    };
+}

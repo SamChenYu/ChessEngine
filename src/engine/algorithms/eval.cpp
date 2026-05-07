@@ -9,8 +9,8 @@ float eval::get_eval(const board& b) {
     int white_pos{0}, black_pos{0};
 
     for (int i=0; i<6; i++) {
-        unsigned long long w_board = b.white[i];
-        unsigned long long b_board = b.black[i];
+        unsigned long long w_board = b.m_white[i];
+        unsigned long long b_board = b.m_black[i];
 
         white_material += std::popcount(w_board) * pst::PIECE_VALUES[i];
         black_material += std::popcount(b_board) * pst::PIECE_VALUES[i];

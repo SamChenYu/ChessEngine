@@ -9,9 +9,11 @@ add_executable(CppChessEngine
         src/board.hpp
         src/board.cpp
         src/main.cpp
-        src/engine/eval/eval.hpp
-        src/engine/eval/eval.cpp
+        src/engine/algorithms/eval.hpp
+        src/engine/algorithms/eval.cpp
         src/engine/engine.hpp
         src/engine/engine.cpp
-        src/engine/eval/pst.hpp
+        src/engine/algorithms/pst.hpp
+        src/engine/algorithms/move_gen.cpp
+        src/engine/algorithms/move_gen.h
 )

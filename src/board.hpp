@@ -1,17 +1,16 @@
 #pragma once
-#include <ranges>
-#include <string_view>
 #include <iostream>
-#include "engine/eval/eval.hpp"
+#include <ranges>
+#include "engine/algorithms/eval.hpp"
 
 class board {
 
-    friend class eval;
+    friend struct eval;
 
 public:
 
     board();
-    explicit board(const std::string str);
+    explicit board(const std::string& str);
 
     ~board() = default;
 
@@ -24,18 +23,20 @@ public:
 #ifdef CPPCHESSENGINE_DEBUG
 
 #include <array>
+    [[nodiscard]]
     std::array<unsigned long long, 6> get_white_bitboards() const {
-        return white;
+        return m_white;
     }
 
+    [[nodiscard]]
     std::array<unsigned long long, 6> get_black_bitboards() const {
-        return black;
+        return m_black;
     }
 
-    void print_bitboard(unsigned long long bb) {
+    static void print_bitboard(const unsigned long long bb) {
         for (int rank = 7; rank >= 0; --rank) {
             for (int file = 0; file < 8; ++file) {
-                int square = rank * 8 + file;
+                const int square = rank * 8 + file;
                 std::cout << ((bb >> square) & 1ULL) << " ";
             }
             std::cout << "\n";
@@ -46,13 +47,13 @@ public:
 
 private:
     // There's probably a better way to arrange this for padding and cache locality
-    std::array<unsigned long long, 6> white = {0};    // PKBRQK
-    std::array<unsigned long long, 6> black = {0};    // PKBRQK
-    bool white_turn;
-    short castling;                 // bit shifted KQkq
-    short enpassant;
-    short halfmove_clock;
-    short fullmove_clock;
+    std::array<unsigned long long, 6> m_white = {0};    // PKBRQK
+    std::array<unsigned long long, 6> m_black = {0};    // PKBRQK
+    bool m_white_turn;
+    short m_castling;                 // bit shifted KQkq
+    short m_enpassant;
+    short m_halfmove_clock;
+    short m_fullmove_clock;
 
     enum PIECES {
         PAWN = 0,

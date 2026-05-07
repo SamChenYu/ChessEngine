@@ -5,12 +5,12 @@
 #include <iomanip>
 #include <vector>
 
-board::board() : white_turn{true}, castling{15},
-                 enpassant{0}, halfmove_clock{0}, fullmove_clock{0} {
+board::board() : m_white_turn{true}, m_castling{15},
+                 m_enpassant{0}, m_halfmove_clock{0}, m_fullmove_clock{0} {
     // init the boards themselves
 }
 
-board::board(const std::string str) {
+board::board(const std::string& str) {
 
     std::vector<std::string_view> split;
     constexpr std::string_view delim = " ";
@@ -48,40 +48,40 @@ board::board(const std::string str) {
 
         switch (split[0][0]) {
             case 'P':
-                white[PAWN] |= 1ULL << current_square;
+                m_white[PAWN] |= 1ULL << current_square;
                 break;
             case 'N':
-                white[KNIGHT] |= 1ULL << current_square;
+                m_white[KNIGHT] |= 1ULL << current_square;
                 break;
             case 'B':
-                white[BISHOP] |= 1ULL << current_square;
+                m_white[BISHOP] |= 1ULL << current_square;
                 break;
             case 'R':
-                white[ROOK] |= 1ULL << current_square;
+                m_white[ROOK] |= 1ULL << current_square;
                 break;
             case 'Q':
-                white[QUEEN] |= 1ULL << current_square;
+                m_white[QUEEN] |= 1ULL << current_square;
                 break;
             case 'K':
-                white[KING] |= 1ULL << current_square;
+                m_white[KING] |= 1ULL << current_square;
                 break;
             case 'p':
-                black[PAWN] |= 1ULL << current_square;
+                m_black[PAWN] |= 1ULL << current_square;
                 break;
             case 'n':
-                black[KNIGHT] |= 1ULL << current_square;
+                m_black[KNIGHT] |= 1ULL << current_square;
                 break;
             case 'b':
-                black[BISHOP] |= 1ULL << current_square;
+                m_black[BISHOP] |= 1ULL << current_square;
                 break;
             case 'r':
-                black[ROOK] |= 1ULL << current_square;
+                m_black[ROOK] |= 1ULL << current_square;
                 break;
             case 'q':
-                black[QUEEN] |= 1ULL << current_square;
+                m_black[QUEEN] |= 1ULL << current_square;
                 break;
             case 'k':
-                black[KING] |= 1ULL << current_square;
+                m_black[KING] |= 1ULL << current_square;
                 break;
             case '/':
                 current_square -= 16;
@@ -103,34 +103,34 @@ board::board(const std::string str) {
     }
 
     if (split[1] == "w")
-        white_turn = true;
+        m_white_turn = true;
     else if (split[1] == "b")
-        white_turn = false;
+        m_white_turn = false;
     else
         throw std::invalid_argument("Invalid FEN string: unrecognized turn character");
 
-    castling = 0;
+    m_castling = 0;
     while (!split[2].empty()) {
         switch (split[2][0]) {
             case 'K':
-                if (castling >> 3 == 1)
+                if (m_castling >> 3 == 1)
                     throw std::invalid_argument("Invalid FEN string: castling has multiple 'K'");
-                castling |= 1 << 3;
+                m_castling |= 1 << 3;
                 break;
             case 'Q':
-                if (castling >> 2 == 1)
+                if (m_castling >> 2 == 1)
                     throw std::invalid_argument("Invalid FEN string: castling has multiple 'Q'");
-                castling |= 1 << 2;
+                m_castling |= 1 << 2;
                 break;
             case 'k':
-                if (castling >> 1 == 1)
+                if (m_castling >> 1 == 1)
                     throw std::invalid_argument("Invalid FEN string: castling has multiple 'k");
-                castling |= 1 << 1;
+                m_castling |= 1 << 1;
                 break;
             case 'q':
-                if (castling == 1)
+                if (m_castling == 1)
                     throw std::invalid_argument("Invalid FEN string: castling has multiple 'q'");
-                castling |= 1 << 0;
+                m_castling |= 1 << 0;
                 break;
             default:
                 throw std::invalid_argument("Invalid FEN string: unrecognized castling character");
@@ -139,20 +139,20 @@ board::board(const std::string str) {
     }
 
     if (split[3][0] == '-') {
-        enpassant = -1;
+        m_enpassant = -1;
     } else {
-        auto enpassant_result = std::from_chars(split[3].data(), split[3].data() + split[3].size(), enpassant);
+        auto enpassant_result = std::from_chars(split[3].data(), split[3].data() + split[3].size(), m_enpassant);
         if (enpassant_result.ec == std::errc::invalid_argument) {
             throw std::invalid_argument("Invalid FEN string: invalid enpassant character");
         }
     }
 
-    auto halfmove_result = std::from_chars(split[4].data(), split[4].data() + split[4].size(), halfmove_clock);
+    auto halfmove_result = std::from_chars(split[4].data(), split[4].data() + split[4].size(), m_halfmove_clock);
     if (halfmove_result.ec == std::errc::invalid_argument) {
         throw std::invalid_argument("Invalid FEN string: invalid half move clock character");
     }
 
-    auto fullmove_result = std::from_chars(split[5].data(), split[5].data() + split[5].size(), fullmove_clock);
+    auto fullmove_result = std::from_chars(split[5].data(), split[5].data() + split[5].size(), m_fullmove_clock);
     if (fullmove_result.ec == std::errc::invalid_argument) {
         throw std::invalid_argument("Invalid FEN string: invalid full move clock character");
     }

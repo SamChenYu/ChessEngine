@@ -6,6 +6,7 @@
 class board {
 
     friend struct eval;
+    friend struct move_gen;
 
 public:
 

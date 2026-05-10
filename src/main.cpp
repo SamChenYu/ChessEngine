@@ -1,5 +1,5 @@
 #define CPPCHESSENGINE_DEBUG
-#define CPPCHESSENGINE_PRINT
+// #define CPPCHESSENGINE_PRINT
 
 #include <iostream>
 #include <string>
@@ -32,6 +32,5 @@ int main() {
     } catch (std::invalid_argument &e) {
         std::cout << e.what() << std::endl;
     }
-
     return 0;
 }

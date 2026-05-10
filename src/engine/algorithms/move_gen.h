@@ -3,30 +3,33 @@
 #include "../../board.hpp"
 #include <vector>
 
-class move {
-public:
-    move(int source, int target, int flags, int extra);
+/*
+    Moves are encoded into 32 bit integers
+    bits 0 – 5   FROM
+    bits 6 – 11  TO
+    bits 12     CAPTURE FLAG
+    bits 13     EN PASSANT FLAG
+    bits 14 - 15     CASTLE FLAG
+        00 = No Castling
+        01 = Kingside
+        10 = Queenside
+    bits 16 – 19 PROMOTION PIECE
+        000 = No Promotion
+        001 = Knight
+        010 = Bishop
+        011 = Rook
+        100 = QUEEN
 
-    // Todo: just make a constructors default
-
-    enum MOVEFLAGS {
-        CAPTURE       = 1 << 0,
-        CASTLE        = 1 << 1,
-        EN_PASSANT    = 1 << 2,
-        DOUBLE_PUSH   = 1 << 3
-    };
+    // General search is going to be made by copying board states,
+    // not by moving / unmoving so we will disregard CAPTURE, and
+    // DOUBLE PAWN PUSH
 
 
-private:
-    // Todo: stockfish style move with just 32 bits!!!!
-    int m_source;
-    int m_target;
-    int m_flags;
-    int m_extra;
-};
+*/
+
 
 struct move_gen {
 public:
-    static std::vector<move> generate_legal_moves(const board& board);
+    static void generate_legal_moves(const board& board, std::vector<int>& out);
     static bool is_king_checked(const board& board);
 };

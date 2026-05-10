@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <iostream>
 #include <ranges>
 #include "engine/algorithms/eval.hpp"
@@ -25,16 +26,16 @@ public:
 
 #include <array>
     [[nodiscard]]
-    std::array<unsigned long long, 6> get_white_bitboards() const {
+    std::array<uint64_t, 6> get_white_bitboards() const {
         return m_white;
     }
 
     [[nodiscard]]
-    std::array<unsigned long long, 6> get_black_bitboards() const {
+    std::array<uint64_t, 6> get_black_bitboards() const {
         return m_black;
     }
 
-    static void print_bitboard(const unsigned long long bb) {
+    static void print_bitboard(const uint64_t bb) {
         for (int rank = 7; rank >= 0; --rank) {
             for (int file = 0; file < 8; ++file) {
                 const int square = rank * 8 + file;
@@ -48,8 +49,8 @@ public:
 
 private:
     // There's probably a better way to arrange this for padding and cache locality
-    std::array<unsigned long long, 6> m_white = {0};    // PKBRQK
-    std::array<unsigned long long, 6> m_black = {0};    // PKBRQK
+    std::array<uint64_t, 6> m_white = {0};    // PKBRQK
+    std::array<uint64_t, 6> m_black = {0};    // PKBRQK
     bool m_white_turn;
     short m_castling;                 // bit shifted KQkq
     short m_enpassant;

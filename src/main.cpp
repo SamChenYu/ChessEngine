@@ -1,17 +1,17 @@
 #define CPPCHESSENGINE_DEBUG
-// #define CPPCHESSENGINE_PRINT
+#define CPPCHESSENGINE_PRINT
 
 #include <iostream>
 #include <string>
 #include "board.hpp"
 #include "engine/algorithms/eval.hpp"
 
-int main() {
 
+int main() {
 #ifndef CPPCHESSENGINE_DEBUG
     std::cout << "Enter FEN String: " ;
-     std::string input;
-     std::getline(std::cin, input);
+    std::string input;
+    std::getline(std::cin, input);
 #else
     std::string input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 #endif
@@ -27,9 +27,10 @@ int main() {
         for (const auto board : black) {
             b1.print_bitboard(board);
         }
+        std::cout << "Evaluation: " << eval::get_eval(b1) << "\n";
+
 #endif
-    std::cout << "Evaluation: " << eval::get_eval(b1) << "\n";
-    } catch (std::invalid_argument &e) {
+        } catch (std::invalid_argument &e) {
         std::cout << e.what() << std::endl;
     }
     return 0;

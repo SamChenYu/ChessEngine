@@ -22,6 +22,8 @@ public:
     board(board&&) = default;
     board& operator=(board&&) = default;
 
+    uint64_t get_occupancy_board() const;
+
 #ifdef CPPCHESSENGINE_DEBUG
 
 #include <array>

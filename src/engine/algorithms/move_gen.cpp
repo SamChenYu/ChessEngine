@@ -1,10 +1,12 @@
 #include "move_gen.h"
-#include "../../../external/magic-bits/include/magic_bits.hpp"
+#define CPPCHESSENGINE_DEBUG
+#include "../../board.hpp"
 
-void move_gen::generate_legal_moves(const board& board, std::vector<int>& out) {
-
+void move_gen::generate_legal_moves(const board& b, std::vector<int>& out) {
+    const uint64_t occupancy_bb{b.get_occupancy_board()};
+    // uint64_t rook_moves{attacks.Rook(board, )};
+    uint64_t rook_moves{attacks.Rook(0,0)};
     
-
 
 }
 

@@ -1,13 +1,11 @@
-#define CPPCHESSENGINE_DEBUG
 #include "board.hpp"
-
 #include <charconv>
 #include <iomanip>
 #include <vector>
 
-board::board() : m_white_turn{true}, m_castling{15},
-                 m_enpassant{0}, m_halfmove_clock{0}, m_fullmove_clock{0} {
-    // init the boards themselves
+board::board()
+    : board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+{
 }
 
 board::board(const std::string& str) {
@@ -19,10 +17,6 @@ board::board(const std::string& str) {
 
     if (split.size() < 6)
         throw std::invalid_argument("Invalid string length: less than 6");
-
-    // Starting FEN Position:
-    //          rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-
 
     // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR
     // a8....h8...........................a1....h1
@@ -41,7 +35,6 @@ board::board(const std::string& str) {
 
           a  b  c  d  e  f  g  h
     */
-
 
     int current_square{56};
     while (!split[0].empty()) {
@@ -157,4 +150,13 @@ board::board(const std::string& str) {
         throw std::invalid_argument("Invalid FEN string: invalid full move clock character");
     }
 
+}
+
+uint64_t board::get_occupancy_board() const {
+    uint64_t result{0};
+    for (int i=0; i<6; i++) {
+        result |= m_white[i];
+        result |= m_black[i];
+    }
+    return result;
 }

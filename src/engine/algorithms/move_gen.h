@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../board.hpp"
+#include "../../../external/magic-bits/include/magic_bits.hpp"
 #include <vector>
 
 /*
@@ -27,9 +28,10 @@
 
 */
 
-
 struct move_gen {
 public:
     static void generate_legal_moves(const board& board, std::vector<int>& out);
     static bool is_king_checked(const board& board);
+private:
+    static magic_bits::Attacks attacks;
 };

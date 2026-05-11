@@ -15,5 +15,5 @@ add_executable(CppChessEngine
         src/engine/engine.cpp
         src/engine/algorithms/pst.hpp
         src/engine/algorithms/move_gen.cpp
-        src/engine/algorithms/move_gen.h
+        src/engine/algorithms/move_gen.hpp
 )

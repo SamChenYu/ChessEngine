@@ -30,8 +30,11 @@
 
 struct move_gen {
 public:
+
     static void generate_legal_moves(const board& board, std::vector<int>& out);
     static bool is_king_checked(const board& board);
 private:
-    static magic_bits::Attacks attacks;
+    static void generate_pseudo_moves(const board& board, std::vector<int>& out);
+    inline static magic_bits::Attacks attacks;
+
 };

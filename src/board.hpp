@@ -23,6 +23,8 @@ public:
     board& operator=(board&&) = default;
 
     uint64_t get_occupancy_board() const;
+    uint64_t get_white_occupancy_board() const;
+    uint64_t get_black_occupancy_board() const;
 
 #ifdef CPPCHESSENGINE_DEBUG
 
@@ -37,7 +39,7 @@ public:
         return m_black;
     }
 
-    static void print_bitboard(const uint64_t bb) {
+    void print_bitboard(const uint64_t bb) const {
         for (int rank = 7; rank >= 0; --rank) {
             for (int file = 0; file < 8; ++file) {
                 const int square = rank * 8 + file;

@@ -160,3 +160,19 @@ uint64_t board::get_occupancy_board() const {
     }
     return result;
 }
+
+uint64_t board::get_white_occupancy_board() const {
+    uint64_t result{0};
+    for (int i=0; i<6; i++) {
+        result |= m_white[i];
+    }
+    return result;
+}
+
+uint64_t board::get_black_occupancy_board() const {
+    uint64_t result{0};
+    for (int i=0; i<6; i++) {
+        result |= m_black[i];
+    }
+    return result;
+}

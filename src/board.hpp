@@ -22,8 +22,11 @@ public:
     board(board&&) = default;
     board& operator=(board&&) = default;
 
+    [[nodiscard]]
     uint64_t get_occupancy_board() const;
+    [[nodiscard]]
     uint64_t get_white_occupancy_board() const;
+    [[nodiscard]]
     uint64_t get_black_occupancy_board() const;
 
 #ifdef CPPCHESSENGINE_DEBUG

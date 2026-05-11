@@ -35,10 +35,10 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
     }
 
 
-    uint64_t bishops = friendly_pieces[b.PIECES::ROOK];
+    uint64_t bishops = friendly_pieces[b.PIECES::BISHOP];
     while (bishops) {
         int next_bishop = std::countr_zero(bishops);
-        const uint64_t bishop_moves = attacks.Bishop(occupancy_bb, next_bishop);
+        const uint64_t bishop_moves = attacks.Bishop(occupancy_bb, next_bishop); // Todo: exclude friendly piece captures
 #ifdef CPPCHESSENGINE_DEBUG
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
         std::cout << "bishops moves: " << std::endl;
@@ -51,7 +51,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
     uint64_t rooks = friendly_pieces[b.PIECES::ROOK];
     while (rooks) {
         int next_rook = std::countr_zero(rooks);
-        const uint64_t rook_moves = attacks.Rook(occupancy_bb, next_rook);
+        const uint64_t rook_moves = attacks.Rook(occupancy_bb, next_rook); // Todo: exclude friendly piece captures
 #ifdef CPPCHESSENGINE_DEBUG
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
         std::cout << "Rook moves: " << std::endl;
@@ -63,7 +63,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
     uint64_t queens = friendly_pieces[b.PIECES::QUEEN];
     while (queens) {
         int next_queen = std::countr_zero(queens);
-        const uint64_t queen_moves = attacks.Queen(occupancy_bb, next_queen);
+        const uint64_t queen_moves = attacks.Queen(occupancy_bb, next_queen); // Todo: exclude friendly piece captures
 #ifdef CPPCHESSENGINE_DEBUG
 #include <iostream>
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
@@ -76,12 +76,15 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
     uint64_t kings = friendly_pieces[b.PIECES::KING];
     // To be honest, for non-legal positions I can implment multiple kings but just gonna do one for now
     // Todo: implement Kings bitmask
-    int next_king = std::countr_zero(kings);
+    if (kings) {
+        int next_king = std::countr_zero(kings);
 #ifdef CPPCHESSENGINE_DEBUG
-    std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
-    std::cout << "King moves: " << std::endl;
-    // b.print_bitboard(king_moves);
+        std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
+        std::cout << "King moves: " << std::endl;
+        // b.print_bitboard(king_moves);
 #endif
+    }
+
 
 }
 

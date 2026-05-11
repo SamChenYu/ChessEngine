@@ -152,6 +152,7 @@ board::board(const std::string& str) {
 
 }
 
+[[nodiscard]]
 uint64_t board::get_occupancy_board() const {
     uint64_t result{0};
     for (int i=0; i<6; i++) {
@@ -161,6 +162,7 @@ uint64_t board::get_occupancy_board() const {
     return result;
 }
 
+[[nodiscard]]
 uint64_t board::get_white_occupancy_board() const {
     uint64_t result{0};
     for (int i=0; i<6; i++) {
@@ -169,6 +171,7 @@ uint64_t board::get_white_occupancy_board() const {
     return result;
 }
 
+[[nodiscard]]
 uint64_t board::get_black_occupancy_board() const {
     uint64_t result{0};
     for (int i=0; i<6; i++) {

@@ -6,10 +6,14 @@
 #include <vector>
 
 void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
+
     const uint64_t occupancy_bb{b.get_occupancy_board()};
     const std::array<uint64_t, 6>& friendly_pieces = b.m_white_turn ? b.m_white : b.m_black;
+    uint64_t friendly_occupancy_bb{0};
+    for (int i=0; i<6; i++)
+        friendly_occupancy_bb |= friendly_pieces[i];
 
-    uint64_t pawns = friendly_pieces[b.PIECES::PAWN];
+    uint64_t pawns = friendly_pieces[board::PAWN];
     while (pawns) {
         int next_pawns = std::countr_zero(pawns);
         // Todo: implement pawns bitmask
@@ -22,7 +26,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
         pawns &= pawns - 1;
     }
 
-    uint64_t knights = friendly_pieces[b.PIECES::KNIGHT];
+    uint64_t knights = friendly_pieces[board::KNIGHT];
     while (knights) {
         int next_knights = std::countr_zero(knights);
         // Todo: implement knights bitmask
@@ -35,23 +39,25 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
     }
 
 
-    uint64_t bishops = friendly_pieces[b.PIECES::BISHOP];
+    uint64_t bishops = friendly_pieces[board::BISHOP];
     while (bishops) {
         int next_bishop = std::countr_zero(bishops);
-        const uint64_t bishop_moves = attacks.Bishop(occupancy_bb, next_bishop); // Todo: exclude friendly piece captures
+        uint64_t bishop_moves = attacks.Bishop(occupancy_bb, next_bishop);
+        bishop_moves = bishop_moves & ~friendly_occupancy_bb;
 #ifdef CPPCHESSENGINE_DEBUG
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
-        std::cout << "bishops moves: " << std::endl;
+        std::cout << "Bishops moves: " << std::endl;
         b.print_bitboard(bishop_moves);
 #endif
         bishops &= bishops - 1;
     }
 
 
-    uint64_t rooks = friendly_pieces[b.PIECES::ROOK];
+    uint64_t rooks = friendly_pieces[board::ROOK];
     while (rooks) {
         int next_rook = std::countr_zero(rooks);
-        const uint64_t rook_moves = attacks.Rook(occupancy_bb, next_rook); // Todo: exclude friendly piece captures
+        uint64_t rook_moves = attacks.Rook(occupancy_bb, next_rook);
+        rook_moves = rook_moves & ~friendly_occupancy_bb;
 #ifdef CPPCHESSENGINE_DEBUG
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
         std::cout << "Rook moves: " << std::endl;
@@ -60,10 +66,11 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
         rooks &= rooks - 1;
     }
 
-    uint64_t queens = friendly_pieces[b.PIECES::QUEEN];
+    uint64_t queens = friendly_pieces[board::QUEEN];
     while (queens) {
         int next_queen = std::countr_zero(queens);
-        const uint64_t queen_moves = attacks.Queen(occupancy_bb, next_queen); // Todo: exclude friendly piece captures
+        uint64_t queen_moves = attacks.Queen(occupancy_bb, next_queen);
+        queen_moves = queen_moves & ~friendly_occupancy_bb;
 #ifdef CPPCHESSENGINE_DEBUG
 #include <iostream>
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
@@ -73,7 +80,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
         queens &= queens - 1;
     }
 
-    uint64_t kings = friendly_pieces[b.PIECES::KING];
+    uint64_t kings = friendly_pieces[board::KING];
     // To be honest, for non-legal positions I can implment multiple kings but just gonna do one for now
     // Todo: implement Kings bitmask
     if (kings) {

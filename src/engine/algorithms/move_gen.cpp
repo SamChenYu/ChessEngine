@@ -7,6 +7,7 @@
 
 void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out) {
 
+    out.reserve(100);
     const uint64_t occupancy_bb{b.get_occupancy_board()};
     const std::array<uint64_t, 6>& friendly_pieces = b.m_white_turn ? b.m_white : b.m_black;
     const std::array<uint64_t, 6>& enemy_pieces = b.m_white_turn? b.m_black : b.m_white;
@@ -70,27 +71,20 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         b.print_bitboard(rook_moves);
 #endif
 
-        uint64_t quiet_moves = rook_moves & ~occupancy_bb;
-        uint64_t captures = rook_moves & enemy_occupancy_bb;
+        constexpr uint32_t capture_flag = (0b1 << bitmask::capture_offset) & bitmask::capture;
+        const uint32_t from = (next_rook & bitmask::from);
 
-        while (quiet_moves) {
-            int move{0};
-            move = (next_rook & bitmask::from);
-            move = move |= ((std::countr_zero(quiet_moves) << bitmask::to_offset) & bitmask::to);
+        while (rook_moves) {
+            uint32_t move{from};
+            const uint32_t to = std::countr_zero(rook_moves);
+            move |= (to << bitmask::to_offset) & bitmask::to;
+
+            if ((enemy_occupancy_bb >> to) & 0b1)
+                move |= capture_flag;
+
             out.emplace_back(move);
-            quiet_moves &= quiet_moves -1;
+            rook_moves &= rook_moves - 1;
         }
-
-        while (captures) {
-            int move{0};
-            move = (next_rook & bitmask::from);
-            move = move |= ((std::countr_zero(captures) << bitmask::to_offset) & bitmask::to);
-            move = move |= 0b1 << bitmask::capture_offset & bitmask::capture;
-            out.emplace_back(move);
-            captures &= captures - 1;
-        }
-
-
         rooks &= rooks - 1;
     }
 

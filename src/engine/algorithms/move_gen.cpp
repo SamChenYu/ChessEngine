@@ -12,6 +12,8 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
     const std::array<uint64_t, 6>& friendly_pieces = b.m_white_turn ? b.m_white : b.m_black;
     const std::array<uint64_t, 6>& enemy_pieces = b.m_white_turn? b.m_black : b.m_white;
 
+    constexpr uint32_t capture_flag = (0b1 << bitmask::capture_offset) & bitmask::capture;
+
     uint64_t friendly_occupancy_bb{0};
     uint64_t enemy_occupancy_bb{0};
     for (int i=0; i<6; i++) {
@@ -54,7 +56,22 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
         std::cout << "Bishops moves: " << std::endl;
         b.print_bitboard(bishop_moves);
+
+
 #endif
+        const uint32_t from = (next_bishop & bitmask::from);
+
+        while (bishop_moves) {
+            uint32_t move{from};
+            const uint32_t to = std::countr_zero(bishop_moves);
+            move |= (to << bitmask::to_offset) & bitmask::to;
+
+            if ((enemy_occupancy_bb >> to) & 0b1)
+                move |= capture_flag;
+            out.emplace_back(move);
+            bishop_moves &= bishop_moves - 1;
+        }
+
         bishops &= bishops - 1;
     }
 
@@ -71,7 +88,6 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         b.print_bitboard(rook_moves);
 #endif
 
-        constexpr uint32_t capture_flag = (0b1 << bitmask::capture_offset) & bitmask::capture;
         const uint32_t from = (next_rook & bitmask::from);
 
         while (rook_moves) {
@@ -99,6 +115,21 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         std::cout << "Queen moves: " << std::endl;
         b.print_bitboard(queen_moves);
 #endif
+
+        const uint32_t from = (next_queen & bitmask::from);
+
+        while (queen_moves) {
+            uint32_t move{from};
+            const uint32_t to = std::countr_zero(queen_moves);
+            move |= (to << bitmask::to_offset) & bitmask::to;
+
+            if ((enemy_occupancy_bb >> to) & 0b1)
+                move |= capture_flag;
+
+            out.emplace_back(move);
+            queen_moves &= queen_moves - 1;
+        }
+
         queens &= queens - 1;
     }
 

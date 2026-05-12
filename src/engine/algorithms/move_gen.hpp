@@ -56,7 +56,11 @@ private:
     static void print_move(uint32_t move) {
         uint32_t from = move & bitmask::from;
         uint32_t to = (move & bitmask::to) >> bitmask::to_offset;
-        std::cout << "from:" << " " << from << " to:" << " " << to << std::endl;
+        uint32_t capture = (move & bitmask::capture) >> bitmask::capture_offset;
+        uint32_t enpassant = (move & bitmask::enpassant) >> bitmask::enpassant_offset;
+        uint32_t castling = (move & bitmask::castling) >> bitmask::castling_offset;
+        uint32_t promotion = (move & bitmask::promotion) >> bitmask::promotion_offset;
+        std::cout << "from:" << " " << from << " to:" << " " << to << " capture: " << capture << " enpasssant: " << enpassant << " castling: " << castling << " promotion: " << promotion << std::endl;
     }
 #endif
 

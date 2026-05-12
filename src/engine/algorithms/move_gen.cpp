@@ -5,7 +5,7 @@
 #include "../../../external/magic-bits/include/magic_bits.hpp"
 #include <vector>
 
-void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
+void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out) {
 
     const uint64_t occupancy_bb{b.get_occupancy_board()};
     const std::array<uint64_t, 6>& friendly_pieces = b.m_white_turn ? b.m_white : b.m_black;
@@ -58,11 +58,20 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
         int next_rook = std::countr_zero(rooks);
         uint64_t rook_moves = attacks.Rook(occupancy_bb, next_rook);
         rook_moves = rook_moves & ~friendly_occupancy_bb;
+
 #ifdef CPPCHESSENGINE_DEBUG
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
         std::cout << "Rook moves: " << std::endl;
         b.print_bitboard(rook_moves);
 #endif
+
+        while (rook_moves) {
+            int move{0};
+            move = (next_rook & bitmask::from);
+            move = move |= ((std::countr_zero(rook_moves) << bitmask::to_offset) & bitmask::to) ;
+            out.emplace_back(move);
+            rook_moves &= rook_moves - 1;
+        }
         rooks &= rooks - 1;
     }
 
@@ -90,13 +99,20 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<int>& out) {
         std::cout << "King moves: " << std::endl;
         // b.print_bitboard(king_moves);
 #endif
+
+#ifdef CPPCHESSENGINE_DEBUG
+        std::cout << "Moves: " << std::endl;
+for (auto move : out) {
+    print_move(move);
+}
+#endif
     }
 
 
 }
 
 
-void move_gen::generate_legal_moves(const board& b, std::vector<int>& out) {
+void move_gen::generate_legal_moves(const board& b, std::vector<uint32_t>& out) {
     generate_pseudo_moves(b, out);
 }
 

@@ -5,6 +5,10 @@
 #include "../../../external/magic-bits/include/magic_bits.hpp"
 #include <vector>
 
+#ifdef CPPCHESSENGINE_DEBUG
+#include <iostream>
+#endif
+
 void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out) {
 
     out.reserve(100);
@@ -14,6 +18,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
 
     constexpr uint32_t capture_flag = (0b1 << bitmask::capture_offset) & bitmask::capture;
 
+
     uint64_t friendly_occupancy_bb{0};
     uint64_t enemy_occupancy_bb{0};
     for (int i=0; i<6; i++) {
@@ -22,17 +27,35 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
     }
 
     uint64_t pawns = friendly_pieces[board::PAWN];
-    while (pawns) {
-        int next_pawns = std::countr_zero(pawns);
-        // Todo: implement pawns bitmask
+    // Move forward = >> or << by 8 then &= with ~occupancy_bb
+    //      Also can &= with the final rank for promotion
+
+    // white
+    const uint64_t pawn_single_step{ (pawns << 8) & ~occupancy_bb & ~board::RANKS::EIGHT}; // March forward except promotion rank
+    const uint64_t pawn_promotion{ (pawns << 8) & ~occupancy_bb & board::RANKS::EIGHT}; // only Promotion
+    const uint64_t pawn_double_step{ ((pawn_single_step  & board::RANKS::THREE) << 8) & ~occupancy_bb}; //
+    const uint64_t left_captures{ ((pawns & ~board::FILES::A) << 9) & enemy_occupancy_bb};
+    const uint64_t right_captures{ ((pawns & ~board::FILES::H) << 7) & enemy_occupancy_bb};
+
+
+    // Captures = >> or << by 7 and 9 and then &= with enemy_occupancy_bb
+    //      Also can &= with en_passant_bb (Todo)
+
 #ifdef CPPCHESSENGINE_DEBUG
 #include <iostream>
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
         std::cout << "Pawn moves: " << std::endl;
-        //b.print_bitboard(pawn_moves);
+        b.print_bitboard(pawns);
+        b.print_bitboard(pawn_single_step);
+        b.print_bitboard(pawn_promotion);
+        b.print_bitboard(pawn_double_step);
+        b.print_bitboard(left_captures);
+        b.print_bitboard(right_captures);
 #endif
-        pawns &= pawns - 1;
-    }
+
+
+
+
 
     uint64_t knights = friendly_pieces[board::KNIGHT];
     while (knights) {
@@ -50,25 +73,23 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
     uint64_t bishops = friendly_pieces[board::BISHOP];
     while (bishops) {
         int next_bishop = std::countr_zero(bishops);
-        uint64_t bishop_moves = attacks.Bishop(occupancy_bb, next_bishop);
-        bishop_moves = bishop_moves & ~friendly_occupancy_bb;
+        uint64_t bishop_moves = attacks.Bishop(occupancy_bb, next_bishop);              // Generates the psuedo legal moves (including potential friendly captures)
+        bishop_moves = bishop_moves & ~friendly_occupancy_bb;                           // Removes the friendly captures
 #ifdef CPPCHESSENGINE_DEBUG
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
         std::cout << "Bishops moves: " << std::endl;
         b.print_bitboard(bishop_moves);
-
-
 #endif
-        const uint32_t from = (next_bishop & bitmask::from);
+        const uint32_t from = (next_bishop & bitmask::from);                            // Allocate the current square bitmasked to the first 6 bits to encode in move
 
         while (bishop_moves) {
             uint32_t move{from};
-            const uint32_t to = std::countr_zero(bishop_moves);
-            move |= (to << bitmask::to_offset) & bitmask::to;
+            const uint32_t to = std::countr_zero(bishop_moves);                         // Get the to square
+            move |= (to << bitmask::to_offset) & bitmask::to;                           // Bitmask the to square to the second 6 bits to encode in move
 
-            if ((enemy_occupancy_bb >> to) & 0b1)
+            if ((enemy_occupancy_bb >> to) & 0b1)                                       // Detect if the move is a capture
                 move |= capture_flag;
-            out.emplace_back(move);
+            //out.emplace_back(move);
             bishop_moves &= bishop_moves - 1;
         }
 
@@ -98,7 +119,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
             if ((enemy_occupancy_bb >> to) & 0b1)
                 move |= capture_flag;
 
-            out.emplace_back(move);
+            //out.emplace_back(move);
             rook_moves &= rook_moves - 1;
         }
         rooks &= rooks - 1;
@@ -110,7 +131,6 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         uint64_t queen_moves = attacks.Queen(occupancy_bb, next_queen);
         queen_moves = queen_moves & ~friendly_occupancy_bb;
 #ifdef CPPCHESSENGINE_DEBUG
-#include <iostream>
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
         std::cout << "Queen moves: " << std::endl;
         b.print_bitboard(queen_moves);
@@ -126,7 +146,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
             if ((enemy_occupancy_bb >> to) & 0b1)
                 move |= capture_flag;
 
-            out.emplace_back(move);
+            //out.emplace_back(move);
             queen_moves &= queen_moves - 1;
         }
 

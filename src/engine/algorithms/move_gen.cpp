@@ -31,15 +31,87 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
     //      Also can &= with the final rank for promotion
 
     // white
-    const uint64_t pawn_single_step{ (pawns << 8) & ~occupancy_bb & ~board::RANKS::EIGHT}; // March forward except promotion rank
-    const uint64_t pawn_promotion{ (pawns << 8) & ~occupancy_bb & board::RANKS::EIGHT}; // only Promotion
-    const uint64_t pawn_double_step{ ((pawn_single_step  & board::RANKS::THREE) << 8) & ~occupancy_bb}; //
-    const uint64_t left_captures{ ((pawns & ~board::FILES::A) << 9) & enemy_occupancy_bb};
-    const uint64_t right_captures{ ((pawns & ~board::FILES::H) << 7) & enemy_occupancy_bb};
+    uint64_t pawn_single_step{ (pawns << 8) & ~occupancy_bb & ~board::RANKS::EIGHT}; // March forward except promotion rank
+    uint64_t pawn_double_step{ ((pawn_single_step  & board::RANKS::THREE) << 8) & ~occupancy_bb}; // Quickly get the value before we reduce single_step
+    while (pawn_single_step) {
+        uint32_t to = std::countr_zero(pawn_single_step);
+        uint32_t move{to - 8};
+        move |= (to << bitmask::to_offset) & bitmask::to;
+        out.emplace_back(move);
+        pawn_single_step &= pawn_single_step - 1;
+    }
+    while (pawn_double_step) {
+        uint32_t to = std::countr_zero(pawn_double_step);
+        uint32_t move{to - 16};
+        move |= (to << bitmask::to_offset) & bitmask::to;
+        out.emplace_back(move);
+        pawn_double_step &= pawn_double_step - 1;
+    }
 
+    uint64_t pawn_promotion{ (pawns << 8) & ~occupancy_bb & board::RANKS::EIGHT}; // only Promotion
+    while (pawn_promotion) {
+        uint32_t to = std::countr_zero(pawn_promotion);
+        for (int i=1; i<5; i++) { // Iterate for KNIGHT / BISHOP / ROOK / QUEEN Promotions
+            uint32_t move{to - 8};
+            move |= (to << bitmask::to_offset) & bitmask::to;
+            move |= (i << bitmask::promotion_offset) & bitmask::promotion;
+            out.emplace_back(move);
+        }
+        pawn_promotion &= pawn_promotion - 1;
+    }
 
     // Captures = >> or << by 7 and 9 and then &= with enemy_occupancy_bb
     //      Also can &= with en_passant_bb (Todo)
+    uint64_t right_captures{ ((pawns & ~board::FILES::H) << 9) & enemy_occupancy_bb & ~board::RANKS::EIGHT};
+    while (right_captures) {
+        uint32_t to = std::countr_zero(right_captures);
+        uint32_t move{to - 9};
+        move |= (to << bitmask::to_offset) & bitmask::to;
+        move |= capture_flag;
+        out.emplace_back(move);
+        right_captures &= right_captures - 1;
+    }
+    uint64_t left_captures{ ((pawns & ~board::FILES::A) << 7) & enemy_occupancy_bb & ~board::RANKS::EIGHT};
+    while (left_captures) {
+        uint32_t to = std::countr_zero(left_captures);
+        uint32_t move{to - 7};
+        move |= (to << bitmask::to_offset) & bitmask::to;
+        move |= capture_flag;
+        out.emplace_back(move);
+        left_captures &= left_captures - 1;
+    }
+    
+    uint64_t right_capture_promotion{ ((pawns & ~board::FILES::H) << 9) & enemy_occupancy_bb & board::RANKS::EIGHT};
+    while (right_capture_promotion) {
+        uint32_t to = std::countr_zero(right_capture_promotion);
+        for (int i=1; i<5; i++) {
+            // Iterate for KNIGHT / BISHOP / ROOK / QUEEN Promotions
+            uint32_t move{to - 9};
+            move |= (to << bitmask::to_offset) & bitmask::to;
+            move |= capture_flag;
+            move |= (i << bitmask::promotion_offset) & bitmask::promotion;
+            out.emplace_back(move);
+        }
+        right_capture_promotion &= right_capture_promotion - 1;
+    }
+
+    uint64_t left_capture_promotion{ ((pawns & ~board::FILES::A) << 7) & enemy_occupancy_bb & board::RANKS::EIGHT};
+    while (left_capture_promotion) {
+        uint32_t to = std::countr_zero(left_capture_promotion);
+        for (int i=1; i<5; i++) {
+            // Iterate for KNIGHT / BISHOP / ROOK / QUEEN Promotions
+            uint32_t move{to - 7};
+            move |= (to << bitmask::to_offset) & bitmask::to;
+            move |= capture_flag;
+            move |= (i << bitmask::promotion_offset) & bitmask::promotion;
+            out.emplace_back(move);
+        }
+        left_capture_promotion &= left_capture_promotion - 1;
+    }
+
+
+
+
 
 #ifdef CPPCHESSENGINE_DEBUG
 #include <iostream>

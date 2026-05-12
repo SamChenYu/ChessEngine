@@ -18,7 +18,6 @@ int main() {
     std::getline(std::cin, input);
 #else
     std::string input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    input = "8/pppppppp/8/8/8/1p1p1p1p/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 #endif
 
     try {
@@ -26,17 +25,17 @@ int main() {
 #ifdef CPPCHESSENGINE_PRINT
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") " << "\n";
 
-        std::cout << "White: " << std::endl;
-        auto white = b1.get_white_bitboards();
-        for (const auto board : white) {
-            b1.print_bitboard(board);
-        }
-
-        std::cout << "Black: " << std::endl;
-        auto black = b1.get_black_bitboards();
-        for (const auto board : black) {
-            b1.print_bitboard(board);
-        }
+        // std::cout << "White: " << std::endl;
+        // auto white = b1.get_white_bitboards();
+        // for (const auto board : white) {
+        //     b1.print_bitboard(board);
+        // }
+        //
+        // std::cout << "Black: " << std::endl;
+        // auto black = b1.get_black_bitboards();
+        // for (const auto board : black) {
+        //     b1.print_bitboard(board);
+        // }
         std::cout << "Evaluation: " << eval::get_eval(b1) << "\n";
 
         std::vector<uint32_t> moves;

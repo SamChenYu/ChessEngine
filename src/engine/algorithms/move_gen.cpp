@@ -272,14 +272,29 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
 
 
     uint64_t knights = friendly_pieces[board::KNIGHT];
+    constexpr static std::array<uint64_t, 64> knight_table{generate_knight_table()};
     while (knights) {
-        int next_knights = std::countr_zero(knights);
-        // Todo: implement knights bitmask
-#ifdef CPPCHESSENGINE_DEBUG
-        std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
-        std::cout << "Knight moves: " << std::endl;
-        //b.print_bitboard(knight_moves);
-#endif
+        uint32_t next_knights = std::countr_zero(knights);
+
+        const uint64_t knight_moves = knight_table[next_knights];
+        uint64_t knight_quiet_moves = knight_moves & ~occupancy_bb;
+        while (knight_quiet_moves) {
+            uint32_t move{next_knights};
+            uint32_t to = std::countr_zero(knight_quiet_moves);
+            move |= (to << bitmask::to_offset) & bitmask::to;
+            out.emplace_back(move);
+            knight_quiet_moves &= knight_quiet_moves - 1;
+        }
+        uint64_t knight_captures = knight_moves & enemy_occupancy_bb;
+        while (knight_captures) {
+            uint32_t move{next_knights};
+            uint32_t to = std::countr_zero(knight_captures);
+            move |= (to << bitmask::to_offset) & bitmask::to;
+            move |= capture_flag;
+            out.emplace_back(move);
+            knight_captures &= knight_captures - 1;
+        }
+
         knights &= knights - 1;
     }
 
@@ -377,20 +392,19 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         std::cout << "King moves: " << std::endl;
         // b.print_bitboard(king_moves);
 #endif
+    }
+
+
+    
+
 
 #ifdef CPPCHESSENGINE_DEBUG
-        std::cout << "Moves: " << std::endl;
-// for (auto move : out) {
-//     print_move(move);
-// }
-
-     constexpr static auto knight_tables {generate_knight_table()};
-    for (int i=0; i<64; i++) {
-        std::cout << "Knight moves " << i << std::endl;
-        b.print_bitboard(knight_tables[i]);
-    }
+std::cout << "Moves: " << std::endl;
+for (auto move : out) {
+    print_move(move);
+}
 #endif
-    }
+
 
 
 }

@@ -46,7 +46,7 @@ private:
         promotion   =       0b00000000000011110000000000000000, promotion_offset = 16
     };
 
-    constexpr static std::array<uint64_t, 64> generate_knight_table() {
+    inline constexpr static std::array<uint64_t, 64> generate_knight_table() {
         std::array<uint64_t, 64> table{};
 
         for (int sq = 0; sq < 64; ++sq) {
@@ -70,7 +70,7 @@ private:
         return table;
     }
 
-    constexpr static std::array<uint64_t, 64> generate_king_table() {
+    inline constexpr static std::array<uint64_t, 64> generate_king_table() {
         std::array<uint64_t, 64> table{};
 
         for (int sq = 0; sq < 64; ++sq) {

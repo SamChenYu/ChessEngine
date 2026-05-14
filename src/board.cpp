@@ -130,14 +130,26 @@ board::board(const std::string& str) {
         }
         split[2].remove_prefix(1);
     }
-
-    if (split[3][0] == '-') {
+    
+    if (split[3] == "-") {
         m_enpassant = -1;
     } else {
-        auto enpassant_result = std::from_chars(split[3].data(), split[3].data() + split[3].size(), m_enpassant);
-        if (enpassant_result.ec == std::errc::invalid_argument) {
-            throw std::invalid_argument("Invalid FEN string: invalid enpassant character");
+        if (split[3].size() != 2) {
+            throw std::invalid_argument("Invalid FEN string: invalid en passant square");
         }
+
+        char fileChar = split[3][0];
+        char rankChar = split[3][1];
+
+        if (fileChar < 'a' || fileChar > 'h' ||
+            rankChar < '1' || rankChar > '8') {
+            throw std::invalid_argument("Invalid FEN string: invalid en passant square");
+            }
+
+        int file = fileChar - 'a';
+        int rank = rankChar - '1';
+
+        m_enpassant = rank * 8 + file;
     }
 
     auto halfmove_result = std::from_chars(split[4].data(), split[4].data() + split[4].size(), m_halfmove_clock);

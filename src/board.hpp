@@ -59,10 +59,10 @@ private:
     std::array<uint64_t, 6> m_white = {0};    // PKBRQK
     std::array<uint64_t, 6> m_black = {0};    // PKBRQK
     bool m_white_turn;
-    short m_castling;                 // bit shifted KQkq
-    short m_enpassant;
-    short m_halfmove_clock;
-    short m_fullmove_clock;
+    int m_castling;                 // bit shifted KQkq
+    int m_enpassant;
+    int m_halfmove_clock;
+    int m_fullmove_clock;
 
     enum PIECES {
         PAWN = 0,

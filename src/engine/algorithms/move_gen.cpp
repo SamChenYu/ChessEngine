@@ -61,8 +61,10 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
     }
 
     // Captures = >> or << by 7 and 9 and then &= with enemy_occupancy_bb
-    //      Also can &= with en_passant_bb (Todo)
+    // Check for en passant captures
+
     uint64_t right_captures{ ((pawns & ~board::FILES::H) << 9) & enemy_occupancy_bb & ~board::RANKS::EIGHT};
+
     while (right_captures) {
         uint32_t to = std::countr_zero(right_captures);
         uint32_t move{to - 9};
@@ -79,6 +81,29 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         move |= capture_flag;
         out.emplace_back(move);
         left_captures &= left_captures - 1;
+    }
+
+    const uint64_t en_passant_square{ 1ULL << b.m_enpassant };
+    uint64_t right_enpassant_captures{ ((pawns & ~board::FILES::H) << 9) & en_passant_square };
+    while (right_enpassant_captures) {
+        uint32_t to = std::countr_zero(right_enpassant_captures);
+        uint32_t move{to - 9};
+        move |= (to << bitmask::to_offset) & bitmask::to;
+        move |= capture_flag;
+        move |= (0b1 << bitmask::enpassant_offset) & bitmask::enpassant;
+        out.emplace_back(move);
+        right_enpassant_captures &= right_enpassant_captures - 1;
+    }
+
+    uint64_t left_enpassant_captures{ ((pawns & ~board::FILES::A) << 7) & en_passant_square };
+    while (left_enpassant_captures) {
+        uint32_t to = std::countr_zero(left_enpassant_captures);
+        uint32_t move{to - 7};
+        move |= (to << bitmask::to_offset) & bitmask::to;
+        move |= capture_flag;
+        move |= (0b1 << bitmask::enpassant_offset) & bitmask::enpassant;
+        out.emplace_back(move);
+        left_enpassant_captures &= left_enpassant_captures - 1;
     }
     
     uint64_t right_capture_promotion{ ((pawns & ~board::FILES::H) << 9) & enemy_occupancy_bb & board::RANKS::EIGHT};
@@ -112,16 +137,19 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
 
 
 
-
 #ifdef CPPCHESSENGINE_DEBUG
-#include <iostream>
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
-        std::cout << "Pawn moves: " << std::endl;
+        std::cout << "Pawns: " << std::endl;
         b.print_bitboard(pawns);
+        std::cout << "Pawn single step" << std::endl;
         b.print_bitboard(pawn_single_step);
+        std::cout << "Pawn promotion" << std::endl;
         b.print_bitboard(pawn_promotion);
+        std::cout << "Pawn double step" << std::endl;
         b.print_bitboard(pawn_double_step);
+        std::cout << "Left captures" << std::endl;
         b.print_bitboard(left_captures);
+        std::cout << "Right captures" << std::endl;
         b.print_bitboard(right_captures);
 #endif
 

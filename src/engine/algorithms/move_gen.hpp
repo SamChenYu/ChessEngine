@@ -4,46 +4,30 @@
 #include "../../../external/magic-bits/include/magic_bits.hpp"
 #include <vector>
 
-/*
-    Moves are encoded into 32 bit integers
-    bits 0 – 5   FROM
-    bits 6 – 11  TO
-    bits 12     CAPTURE FLAG
-    bits 13     EN PASSANT FLAG
-    bits 14 - 15     CASTLE FLAG
-        00 = No Castling
-        01 = Kingside
-        10 = Queenside
-    bits 16 – 19 PROMOTION PIECE
-        000 = No Promotion
-        001 = Knight
-        010 = Bishop
-        011 = Rook
-        100 = QUEEN
-
-    // General search is going to be made by copying board states,
-    // not by moving / unmoving so we will disregard CAPTURE, and
-    // DOUBLE PAWN PUSH
-
-
-*/
-
 struct move_gen {
 public:
 
+    // General Logic: Compute pseudo legal moves, validate with generate_enemy_attack_bitboard
+
     static void generate_legal_moves(const board& board, std::vector<uint32_t>& out);
-    static bool is_king_checked(const board& board);
 private:
     static void generate_pseudo_moves(const board& board, std::vector<uint32_t>& out);
+    static uint64_t generate_enemy_attack_bitboard(const board& board);
+
     inline static magic_bits::Attacks attacks;
 
+    /*
+        Moves are encoded into 32 bit integers
+        // General search is going to be made by copying board states,
+        // not by moving & unmoving so we will disregard DOUBLE PAWN PUSH
+    */
     enum bitmask : uint32_t {
-        from        =       0b00000000000000000000000000111111, from_offset = 0,
-        to          =       0b00000000000000000000111111000000, to_offset = 6,
-        capture     =       0b00000000000000000001000000000000, capture_offset = 12,
-        enpassant   =       0b00000000000000000010000000000000, enpassant_offset = 13,
-        castling    =       0b00000000000000001100000000000000, castling_offset = 14,
-        promotion   =       0b00000000000011110000000000000000, promotion_offset = 16
+        from        =       0b00000000000000000000000000111111, from_offset = 0,        // Interpreted as 6 bit integer (0-63)
+        to          =       0b00000000000000000000111111000000, to_offset = 6,          // Interpreted as 6 bit integer (0-63)
+        capture     =       0b00000000000000000001000000000000, capture_offset = 12,    // Interpreted as a flag
+        enpassant   =       0b00000000000000000010000000000000, enpassant_offset = 13,  // Interpreted as a flag
+        castling    =       0b00000000000000001100000000000000, castling_offset = 14,   // Interpreted as 01(king side), 10 (queen side)
+        promotion   =       0b00000000000011110000000000000000, promotion_offset = 16   // Interpreted as 0001 (knight), 0010 (bishop), 0100 (rook) 1000 (queen)
     };
 
     inline constexpr static std::array<uint64_t, 64> generate_knight_table() {

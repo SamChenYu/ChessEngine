@@ -94,4 +94,11 @@ private:
     int m_enpassant;
     int m_halfmove_clock;
     int m_fullmove_clock;
+
+    enum castling_flags {
+        white_king_side = 0b1000,
+        white_queen_side = 0b0100,
+        black_king_side = 0b0010,
+        black_queen_side = 0b0001,
+    };
 };

@@ -9,17 +9,8 @@
 #include <iostream>
 #endif
 
-
-
-
-
-
 void move_gen::generate_legal_moves(const board& b, std::vector<uint32_t>& out) {
     generate_pseudo_moves(b, out);
-}
-
-bool move_gen::is_king_checked(const board &board) {
-    return true;
 }
 
 void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out) {
@@ -383,19 +374,71 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
     }
 
     uint64_t kings = friendly_pieces[board::KING];
-    // To be honest, for non-legal positions I can implment multiple kings but just gonna do one for now
-    // Todo: implement Kings bitmask
-    if (kings) {
-        int next_king = std::countr_zero(kings);
-#ifdef CPPCHESSENGINE_DEBUG
-        std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
-        std::cout << "King moves: " << std::endl;
-        // b.print_bitboard(king_moves);
-#endif
+    constexpr static std::array<uint64_t, 64> king_table{generate_king_table()};
+    while (kings) {
+        uint32_t next_king = std::countr_zero(kings);
+
+        const uint64_t king_moves = king_table[next_king];
+        uint64_t king_quiet_moves = king_moves & ~occupancy_bb;
+        while (king_quiet_moves) {
+            uint32_t move{from};
+            uint32_t to = std::countr_zero(king_quiet_moves);
+            move |= (to << bitmask::to_offset) & bitmask::to;
+            out.emplace_back(move);
+            king_quiet_moves &= king_quiet_moves - 1;
+        }
+        uint64_t king_captures = king_moves & enemy_occupancy_bb;
+        while (king_captures) {
+            uint32_t move{from};
+            uint32_t to = std::countr_zero(king_captures);
+            move |= (to << bitmask::to_offset) & bitmask::to;
+            move |= capture_flag;
+            out.emplace_back(move);
+            king_captures &= king_captures - 1;
+        }
+
+        kings &= kings - 1;
+    }
+
+    // Todo: add castling: ALSO if there is a rook moving or a king moving then we need to disable the castling rights
+    /*
+        Important castling rules:
+        - All squares in between are clear
+        - Castling RIGHTs are still there
+        - Pieces have not yet moved
+        - Can't castle between or into CHECK (This however is validated later in legal move filtering)
+     */
+    if (b.m_white_turn) {
+        bool king_castle = b.m_castling & b.castling_flags::white_king_side;
+        bool king_castle_clear = (1ULL << 5 & ~occupancy_bb) && (1ULL << 6 & ~occupancy_bb);
+        if (king_castle && king_castle_clear) {
+            uint32_t move{1ULL << 4};
+            uint32_t to = 6ULL;
+            move |= (to << bitmask::to_offset) & bitmask::to;
+            move |= (1ULL << bitmask::castling_offset) & bitmask::castling;
+            out.emplace_back(move);
+        }
+
+        bool queen_castle = b.m_castling & b.castling_flags::white_queen_side;
+        bool queen_castle_clear = (1ULL << 3 & ~occupancy_bb) && (1ULL << 2 & ~occupancy_bb) && (1ULL << 1 & ~occupancy_bb);
+        if (queen_castle && queen_castle_clear) {
+            uint32_t move{1ULL << 4};
+            uint32_t to = 2ULL;
+            move |= (to << bitmask::to_offset) & bitmask::to;
+            move |= (2ULL << bitmask::castling_offset) & bitmask::castling;
+        }
+    } else {
+        if (b.m_castling & b.castling_flags::black_king_side) {
+
+        }
+
+        if (b.m_castling & b.castling_flags::black_queen_side) {
+
+        }
     }
 
 
-    
+
 
 
 #ifdef CPPCHESSENGINE_DEBUG
@@ -404,9 +447,13 @@ for (auto move : out) {
     print_move(move);
 }
 #endif
-
-
-
 }
+
+
+uint64_t move_gen::generate_enemy_attack_bitboard(const board &board) {
+    // To take note: cancel castling rights if enemy attacks in between squares
+    return 0;
+}
+
 
 

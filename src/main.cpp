@@ -18,7 +18,7 @@ int main() {
     std::getline(std::cin, input);
 #else
     // std::string input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    std::string input = "rnbqkbnr/pppp1ppp/8/4p3/3PPp2/8/PPP3PP/RNBQKBNR w KQkq f5 0 3";
+    std::string input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
 #endif
 
     try {

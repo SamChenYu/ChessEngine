@@ -9,6 +9,19 @@
 #include <iostream>
 #endif
 
+
+
+
+
+
+void move_gen::generate_legal_moves(const board& b, std::vector<uint32_t>& out) {
+    generate_pseudo_moves(b, out);
+}
+
+bool move_gen::is_king_checked(const board &board) {
+    return true;
+}
+
 void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out) {
 
     out.reserve(100);
@@ -29,9 +42,8 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
 
     // PAWNS FIRST
     // We are branching off for white / black because bit shifting by negative numbers is UB
-
+    uint64_t pawns = friendly_pieces[board::PAWN];
     if (b.m_white_turn) {
-        uint64_t pawns = friendly_pieces[board::PAWN];
         // Move forward = >> or << by 8 then &= with ~occupancy_bb
         //      Also can &= with the final rank for promotion
 
@@ -138,12 +150,12 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
             }
             left_capture_promotion &= left_capture_promotion - 1;
         }
-    } else {
-        uint64_t pawns = friendly_pieces[board::PAWN];
+    }
+    else {
         // Move forward = >> or << by 8 then &= with ~occupancy_bb
         //      Also can &= with the final rank for promotion
 
-        // white
+        // black
         uint64_t pawn_single_step{ (pawns >> 8) & ~occupancy_bb & ~board::RANKS::ONE}; // March forward except promotion rank
         uint64_t pawn_double_step{ ((pawn_single_step  & board::RANKS::SIX) >> 8) & ~occupancy_bb}; // Quickly get the value before we reduce single_step
         while (pawn_single_step) {
@@ -175,6 +187,9 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
 
         // Captures = >> or << by 7 and 9 and then &= with enemy_occupancy_bb
         // Check for en passant captures
+
+        // Todo: actually this is semantically flipped for black. Left captures = right captures
+        // Todo: Flip the variable names. But since we append the moves it's not a big deal
 
         uint64_t right_captures{ ((pawns & ~board::FILES::A) >> 9) & enemy_occupancy_bb & ~board::RANKS::ONE};
 
@@ -248,29 +263,11 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         }
     }
 
-
-
-
-
-
-
 #ifdef CPPCHESSENGINE_DEBUG
-        std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
-        std::cout << "Pawns: " << std::endl;
-        b.print_bitboard(pawns);
-        std::cout << "Pawn single step" << std::endl;
-        b.print_bitboard(pawn_single_step);
-        std::cout << "Pawn promotion" << std::endl;
-        b.print_bitboard(pawn_promotion);
-        std::cout << "Pawn double step" << std::endl;
-        b.print_bitboard(pawn_double_step);
-        std::cout << "Left captures" << std::endl;
-        b.print_bitboard(left_captures);
-        std::cout << "Right captures" << std::endl;
-        b.print_bitboard(right_captures);
+    std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
+    std::cout << "Pawns: " << std::endl;
+    b.print_bitboard(pawns);
 #endif
-
-
 
 
 
@@ -383,9 +380,15 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
 
 #ifdef CPPCHESSENGINE_DEBUG
         std::cout << "Moves: " << std::endl;
-for (auto move : out) {
-    print_move(move);
-}
+// for (auto move : out) {
+//     print_move(move);
+// }
+
+     constexpr static auto knight_tables {generate_knight_table()};
+    for (int i=0; i<64; i++) {
+        std::cout << "Knight moves " << i << std::endl;
+        b.print_bitboard(knight_tables[i]);
+    }
 #endif
     }
 
@@ -393,10 +396,3 @@ for (auto move : out) {
 }
 
 
-void move_gen::generate_legal_moves(const board& b, std::vector<uint32_t>& out) {
-    generate_pseudo_moves(b, out);
-}
-
-bool move_gen::is_king_checked(const board &board) {
-    return true;
-}

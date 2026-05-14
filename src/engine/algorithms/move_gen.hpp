@@ -46,6 +46,55 @@ private:
         promotion   =       0b00000000000011110000000000000000, promotion_offset = 16
     };
 
+    constexpr static std::array<uint64_t, 64> generate_knight_table() {
+        std::array<uint64_t, 64> table{};
+
+        for (int sq = 0; sq < 64; ++sq) {
+            uint64_t b = 1ULL << sq;
+
+            uint64_t knight_attacks = 0;
+
+            knight_attacks |= (b << 17) & ~board::FILES::A;
+            knight_attacks |= (b << 15) & ~board::FILES::H;
+            knight_attacks |= (b << 10) & ~(board::FILES::A | board::FILES::B);
+            knight_attacks |= (b << 6)  & ~(board::FILES::G | board::FILES::H);
+
+            knight_attacks |= (b >> 17) & ~board::FILES::H;
+            knight_attacks |= (b >> 15) & ~board::FILES::A;
+            knight_attacks |= (b >> 10) & ~(board::FILES::G | board::FILES::H);
+            knight_attacks |= (b >> 6)  & ~(board::FILES::A | board::FILES::B);
+
+            table[sq] = knight_attacks;
+        }
+
+        return table;
+    }
+
+    constexpr static std::array<uint64_t, 64> generate_king_table() {
+        std::array<uint64_t, 64> table{};
+
+        for (int sq = 0; sq < 64; ++sq) {
+            uint64_t b = 1ULL << sq;
+            uint64_t king_attacks = 0;
+            // north
+            king_attacks |= b << 8;
+            // south
+            king_attacks |= b >> 8;
+            // east / west masks to prevent wrap
+            king_attacks |= (b << 1) & ~board::FILES::A;
+            king_attacks |= (b >> 1) & ~board::FILES::H;
+            // diagonals
+            king_attacks |= (b << 9) & ~board::FILES::A;
+            king_attacks |= (b << 7) & ~board::FILES::H;
+            king_attacks |= (b >> 7) & ~board::FILES::A;
+            king_attacks |= (b >> 9) & ~board::FILES::H;
+
+            table[sq] = king_attacks;
+        }
+
+        return table;
+    }
+
 #ifdef CPPCHESSENGINE_DEBUG
     static void print_move(uint32_t move) {
         uint32_t from = move & bitmask::from;

@@ -54,16 +54,6 @@ public:
     }
 #endif
 
-private:
-    // There's probably a better way to arrange this for padding and cache locality
-    std::array<uint64_t, 6> m_white = {0};    // PKBRQK
-    std::array<uint64_t, 6> m_black = {0};    // PKBRQK
-    bool m_white_turn;
-    int m_castling;                 // bit shifted KQkq
-    int m_enpassant;
-    int m_halfmove_clock;
-    int m_fullmove_clock;
-
     enum PIECES {
         PAWN = 0,
         KNIGHT = 1,
@@ -94,4 +84,14 @@ private:
         G = 0x4040404040404040ULL,
         H = 0x8080808080808080ULL,
     };
+
+private:
+    // There's probably a better way to arrange this for padding and cache locality
+    std::array<uint64_t, 6> m_white = {0};    // PKBRQK
+    std::array<uint64_t, 6> m_black = {0};    // PKBRQK
+    bool m_white_turn;
+    int m_castling;                 // bit shifted KQkq
+    int m_enpassant;
+    int m_halfmove_clock;
+    int m_fullmove_clock;
 };

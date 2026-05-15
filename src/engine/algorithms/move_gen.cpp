@@ -381,7 +381,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         const uint64_t king_moves = king_table[next_king];
         uint64_t king_quiet_moves = king_moves & ~occupancy_bb;
         while (king_quiet_moves) {
-            uint32_t move{from};
+            uint32_t move{next_king & bitmask::from};
             uint32_t to = std::countr_zero(king_quiet_moves);
             move |= (to << bitmask::to_offset) & bitmask::to;
             out.emplace_back(move);
@@ -389,7 +389,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         }
         uint64_t king_captures = king_moves & enemy_occupancy_bb;
         while (king_captures) {
-            uint32_t move{from};
+            uint32_t move{next_king};
             uint32_t to = std::countr_zero(king_captures);
             move |= (to << bitmask::to_offset) & bitmask::to;
             move |= capture_flag;
@@ -407,33 +407,65 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         - Castling RIGHTs are still there
         - Pieces have not yet moved
         - Can't castle between or into CHECK (This however is validated later in legal move filtering)
+            - This will be checked as in:
+            WHITE O-O: squares e1 f1 g1
+            WHITE O-O-O squares e1 d1 c1
      */
     if (b.m_white_turn) {
-        bool king_castle = b.m_castling & b.castling_flags::white_king_side;
-        bool king_castle_clear = (1ULL << 5 & ~occupancy_bb) && (1ULL << 6 & ~occupancy_bb);
-        if (king_castle && king_castle_clear) {
-            uint32_t move{1ULL << 4};
-            uint32_t to = 6ULL;
-            move |= (to << bitmask::to_offset) & bitmask::to;
-            move |= (1ULL << bitmask::castling_offset) & bitmask::castling;
-            out.emplace_back(move);
+        {
+            bool king_castle = b.m_castling & b.castling_flags::white_king_side;
+            bool king_castle_clear = (castling_bitmask::white_kingside_clear & occupancy_bb) == 0;
+            bool pieces_present = (castling_bitmask::white_king & friendly_pieces[board::KING]) && (castling_bitmask::white_kingside_rook & friendly_pieces[board::ROOK]); // Technically this isn't needed because the baord shoud handle this validation anyways
+
+            if (king_castle && king_castle_clear && pieces_present) {
+                uint32_t move{4};
+                uint32_t to = 6;
+                move |= (to << bitmask::to_offset) & bitmask::to;
+                move |= (1ULL << bitmask::castling_offset) & bitmask::castling;
+                out.emplace_back(move);
+            }
         }
 
-        bool queen_castle = b.m_castling & b.castling_flags::white_queen_side;
-        bool queen_castle_clear = (1ULL << 3 & ~occupancy_bb) && (1ULL << 2 & ~occupancy_bb) && (1ULL << 1 & ~occupancy_bb);
-        if (queen_castle && queen_castle_clear) {
-            uint32_t move{1ULL << 4};
-            uint32_t to = 2ULL;
-            move |= (to << bitmask::to_offset) & bitmask::to;
-            move |= (2ULL << bitmask::castling_offset) & bitmask::castling;
+        {
+            bool queen_castle = b.m_castling & b.castling_flags::white_queen_side;
+            bool queen_castle_clear = (castling_bitmask::white_queenside_clear & occupancy_bb) == 0;
+            bool pieces_present = (castling_bitmask::white_king & friendly_pieces[board::KING]) && (castling_bitmask::white_queenside_rook & friendly_pieces[board::ROOK]);
+            if (queen_castle && queen_castle_clear && pieces_present) {
+                uint32_t move{4};
+                uint32_t to = 2;
+                move |= (to << bitmask::to_offset) & bitmask::to;
+                move |= (2ULL << bitmask::castling_offset) & bitmask::castling;
+                out.emplace_back(move);
+            }
         }
     } else {
-        if (b.m_castling & b.castling_flags::black_king_side) {
 
+        {
+            if (b.m_castling & b.castling_flags::black_king_side) {
+                bool king_castle = b.m_castling & b.castling_flags::black_king_side;
+                bool king_castle_clear = (castling_bitmask::black_kingside_clear & occupancy_bb) == 0;
+                bool pieces_present = (castling_bitmask::black_king & friendly_pieces[board::KING]) && (castling_bitmask::black_kingside_rook & friendly_pieces[board::ROOK]); // Technically this isn't needed because the baord shoud handle this validation anyways
+                if ( king_castle && king_castle_clear && pieces_present) {
+                    uint32_t move{60};
+                    uint32_t to = 62;
+                    move |= (to << bitmask::to_offset) & bitmask::to;
+                    move |= (1ULL << bitmask::castling_offset) & bitmask::castling;
+                    out.emplace_back(move);
+                }
+            }
         }
 
         if (b.m_castling & b.castling_flags::black_queen_side) {
-
+            bool queen_castle = b.m_castling & b.castling_flags::black_queen_side;
+            bool queen_castle_clear = (castling_bitmask::black_queenside_clear & occupancy_bb) == 0;
+            bool pieces_present = (castling_bitmask::black_king & friendly_pieces[board::KING]) && (castling_bitmask::black_queenside_rook & friendly_pieces[board::ROOK]); // Technically this isn't needed because the baord shoud handle this validation anyways
+            if ( queen_castle && queen_castle_clear && pieces_present) {
+                uint32_t move{60};
+                uint32_t to = 58;
+                move |= (to << bitmask::to_offset) & bitmask::to;
+                move |= (2ULL << bitmask::castling_offset) & bitmask::castling;
+                out.emplace_back(move);
+            }
         }
     }
 

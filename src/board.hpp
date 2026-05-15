@@ -101,4 +101,5 @@ private:
         black_king_side = 0b0010,
         black_queen_side = 0b0001,
     };
+    
 };

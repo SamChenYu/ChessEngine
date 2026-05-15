@@ -27,7 +27,21 @@ private:
         capture     =       0b00000000000000000001000000000000, capture_offset = 12,    // Interpreted as a flag
         enpassant   =       0b00000000000000000010000000000000, enpassant_offset = 13,  // Interpreted as a flag
         castling    =       0b00000000000000001100000000000000, castling_offset = 14,   // Interpreted as 01(king side), 10 (queen side)
-        promotion   =       0b00000000000011110000000000000000, promotion_offset = 16   // Interpreted as 0001 (knight), 0010 (bishop), 0100 (rook) 1000 (queen)
+        promotion   =       0b00000000000011110000000000000000, promotion_offset = 16,   // Interpreted as 0001 (knight), 0010 (bishop), 0100 (rook) 1000 (queen)
+    };
+
+    enum castling_bitmask : uint64_t {
+        white_kingside_clear = (1ULL << 5) | (1ULL << 6),
+        white_queenside_clear = (1ULL << 1) | (1ULL << 2) | (1ULL << 3),
+        white_king = (1ULL << 4),
+        white_kingside_rook = (1ULL << 7),
+        white_queenside_rook = (1ULL << 0),
+
+        black_kingside_clear = (1ULL << 61) | (1ULL << 62),
+        black_queenside_clear = (1ULL << 57) | (1ULL << 58) | (1ULL << 59),
+        black_king = (1ULL << 60),
+        black_kingside_rook = (1ULL << 63),
+        black_queenside_rook = (1ULL << 56),
     };
 
     inline constexpr static std::array<uint64_t, 64> generate_knight_table() {

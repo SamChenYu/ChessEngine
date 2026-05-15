@@ -191,3 +191,8 @@ uint64_t board::get_black_occupancy_board() const {
     }
     return result;
 }
+
+void board::make_move(uint32_t move) {
+    // Todo
+    return;
+}

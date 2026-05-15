@@ -556,7 +556,7 @@ uint64_t move_gen::generate_enemy_attack_bitboard(const board& b) {
         enemy_attack_bitboard |= king_table[next_king];
         enemy_kings &= enemy_kings -1;
     }
-    
+
     return enemy_attack_bitboard;
 }
 

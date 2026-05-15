@@ -29,6 +29,8 @@ public:
     [[nodiscard]]
     uint64_t get_black_occupancy_board() const;
 
+    void make_move(uint32_t move);
+
 #ifdef CPPCHESSENGINE_DEBUG
 
 #include <array>

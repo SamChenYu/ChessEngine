@@ -10,9 +10,10 @@ public:
     // General Logic: Compute pseudo legal moves, validate with generate_enemy_attack_bitboard
 
     static void generate_legal_moves(const board& board, std::vector<uint32_t>& out);
+    static uint64_t generate_enemy_attack_bitboard(const board& board); // Todo: make this private later
 private:
     static void generate_pseudo_moves(const board& board, std::vector<uint32_t>& out);
-    static uint64_t generate_enemy_attack_bitboard(const board& board);
+
 
     inline static magic_bits::Attacks attacks;
 

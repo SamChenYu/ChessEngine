@@ -17,8 +17,8 @@ int main() {
     std::string input;
     std::getline(std::cin, input);
 #else
-    // std::string input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
-    std::string input = "rp2k1pr/8/8/8/8/8/8/RP2KP1R w KQkq - 0 1";
+    // std::string input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    std::string input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 #endif
 
     try {
@@ -48,7 +48,11 @@ int main() {
 
         std::cout << "Evaluation: " << eval::get_eval(b1) << "\n";
         std::vector<uint32_t> moves;
-        move_gen::generate_legal_moves(b1, moves);
+        // move_gen::generate_legal_moves(b1, moves);
+
+        std::cout << "Enemy attack bitboards" << std::endl;
+        auto attacks = move_gen::generate_enemy_attack_bitboard(b1);
+        b1.print_bitboard(attacks);
 #endif
 
 

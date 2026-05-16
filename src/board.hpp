@@ -45,7 +45,7 @@ std::array<uint64_t, 6> get_white_bitboards() const;
 [[nodiscard]]
 std::array<uint64_t, 6> get_black_bitboards() const;
 
-void print_bitboard(const uint64_t bb) const;
+static void print_bitboard(const uint64_t bb);
 
 void print_mailbox() const;
 

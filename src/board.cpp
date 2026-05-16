@@ -1,8 +1,9 @@
 #include "board.hpp"
-#include "engine/algorithms/move_gen.hpp"
 #include <charconv>
 #include <iomanip>
+#include <limits>
 #include <vector>
+#include "engine/algorithms/move_gen.hpp"
 
 #define CPPCHESSENGINE_DEBUG
 
@@ -228,7 +229,7 @@ std::array<uint64_t, 6> board::get_black_bitboards() const {
     return m_black;
 }
 
-void board::print_bitboard(const uint64_t bb) const {
+void board::print_bitboard(const uint64_t bb) {
     for (int rank = 7; rank >= 0; --rank) {
         for (int file = 0; file < 8; ++file) {
             const int square = rank * 8 + file;
@@ -315,12 +316,41 @@ void board::make_move(uint32_t move) {
 
     const uint32_t from = move & move_gen::bitmask::from;
     const uint32_t to = (move & move_gen::bitmask::to) >> move_gen::bitmask::to_offset;
-    const short from_piece_type = m_mailbox[from];
+    const short from_piece_type = m_white_turn ? m_mailbox[from] : m_mailbox[from] & ~m_mailbox_black_flag;
 
 
-    friendly_pieces[from_piece_type] &= ~(1ULL << from); // Remove the from square piece
-    friendly_pieces[from_piece_type] |= (1ULL << to); // Add the to square piece
+    friendly_pieces[from_piece_type] &= ~(1ULL << from); // Remove the piece at the 'from' square
+    m_mailbox[from] = std::numeric_limits<short>::max(); // Remove the piece from the mailbox
+
     // Todo: if king or rook move, then it needs to update the castling rights
+    if (from_piece_type == PIECES::KING) {
+        // Remove castling rights
+    }
+    if (from_piece_type == PIECES::ROOK) {
+        // Remove castling rights
+    }
+
+    if (const uint32_t promotion = (move & move_gen::bitmask::promotion) >> move_gen::bitmask::promotion_offset) {
+        switch (promotion) {
+            case 1:
+                friendly_pieces[PIECES::KNIGHT] |= (1ULL << to);
+                break;
+            case 2:
+                friendly_pieces[PIECES::BISHOP] |= (1ULL << to);
+                break;
+            case 3:
+                friendly_pieces[PIECES::ROOK] |= (1ULL << to);
+                break;
+            case 4:
+                friendly_pieces[PIECES::QUEEN] |= (1ULL << to);
+                break;
+            default:
+                throw std::runtime_error("board::make_move promotion branch unrecognised promotion bitmask");
+        }
+    } else {
+        friendly_pieces[from_piece_type] |= (1ULL << to); // Add the piece at the 'to' square (not a promotion)
+        m_mailbox[to] = from_piece_type;
+    }
 
     const bool capture = (move & move_gen::bitmask::capture) >> move_gen::bitmask::capture_offset;
     if (capture) {
@@ -330,27 +360,18 @@ void board::make_move(uint32_t move) {
         enemy_pieces[to_piece_type] &= ~(1ULL << to);
     }
 
-    const bool enpassant = (move & move_gen::bitmask::enpassant) >> move_gen::bitmask::enpassant_offset;
-    if (enpassant) {
+    if (const bool enpassant = (move & move_gen::bitmask::enpassant) >> move_gen::bitmask::enpassant_offset) {
         // Remove the enemy pawn
         std::array<uint64_t, 6>& enemy_pieces = m_white_turn ? m_white : m_black;
         // Todo: remove the enemy pawn
     }
 
-    const uint32_t castling = (move & move_gen::bitmask::castling) >> move_gen::bitmask::castling_offset;
-    if (castling) {
+    if (const uint32_t castling = (move & move_gen::bitmask::castling) >> move_gen::bitmask::castling_offset) {
         // bit mask for each case
     }
 
-
-    const uint32_t promotion = (move & move_gen::bitmask::promotion) >> move_gen::bitmask::promotion_offset;
-    if (promotion) {
-        // Remove the from piece
-    }
-
-
-
+    // Half move clock: reset to 0 if pawn move or not a capture move. Otherwise reset to 0
+    m_halfmove_clock = (from_piece_type != PIECES::PAWN && !capture) ? m_halfmove_clock++ : 0;
     m_fullmove_clock++;
-    // Todo: update the m_halfmove_clock
 
 }

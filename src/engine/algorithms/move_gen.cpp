@@ -98,7 +98,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
             uint32_t to = std::countr_zero(right_enpassant_captures);
             uint32_t move{to - 9};
             move |= (to << bitmask::to_offset) & bitmask::to;
-            move |= capture_flag;
+            // move |= capture_flag; DELIBERATELY DO NOT HAVE THE CAPTURE FLAG
             move |= (0b1 << bitmask::enpassant_offset) & bitmask::enpassant;
             out.emplace_back(move);
             right_enpassant_captures &= right_enpassant_captures - 1;
@@ -109,7 +109,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
             uint32_t to = std::countr_zero(left_enpassant_captures);
             uint32_t move{to - 7};
             move |= (to << bitmask::to_offset) & bitmask::to;
-            move |= capture_flag;
+            // move |= capture_flag; - DELIBERATELY DO NOT HAVE THE CAPTURE FLAG!!
             move |= (0b1 << bitmask::enpassant_offset) & bitmask::enpassant;
             out.emplace_back(move);
             left_enpassant_captures &= left_enpassant_captures - 1;
@@ -209,7 +209,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
             uint32_t to = std::countr_zero(right_enpassant_captures);
             uint32_t move{to + 9};
             move |= (to << bitmask::to_offset) & bitmask::to;
-            move |= capture_flag;
+            //move |= capture_flag; DELIBERATELY DO NOT HAVE THE CAPTURE FLAG FOR SPECIAL CASE HANDLING
             move |= (0b1 << bitmask::enpassant_offset) & bitmask::enpassant;
             out.emplace_back(move);
             right_enpassant_captures &= right_enpassant_captures - 1;
@@ -220,7 +220,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
             uint32_t to = std::countr_zero(left_enpassant_captures);
             uint32_t move{to + 7};
             move |= (to << bitmask::to_offset) & bitmask::to;
-            move |= capture_flag;
+            // move |= capture_flag; DELIBERATELY DO NOT HAVE THE CAPTURE FLAG FOR SPECIAL CASE HANDLING
             move |= (0b1 << bitmask::enpassant_offset) & bitmask::enpassant;
             out.emplace_back(move);
             left_enpassant_captures &= left_enpassant_captures - 1;

@@ -1,4 +1,5 @@
 #include "board.hpp"
+#include "engine/algorithms/move_gen.hpp"
 #include <charconv>
 #include <iomanip>
 #include <vector>
@@ -180,7 +181,7 @@ board::board(const std::string& str) {
             if (m_white[i] & curr_square) {
                 m_mailbox[sq] = i;
             } else if (m_black[i] & curr_square) {
-                m_mailbox[sq] = (i | m_mailbox_colour_flag);
+                m_mailbox[sq] = (i | m_mailbox_black_flag);
             }
         }
     }
@@ -249,8 +250,8 @@ void board::print_mailbox() const {
             fen_symbol = '.';
         } else {
             // Todo: if I have any other uses this can be abstracted out into another function
-            if (value & m_mailbox_colour_flag) {
-                value &= ~m_mailbox_colour_flag; // remove the black flag
+            if (value & m_mailbox_black_flag) {
+                value &= ~m_mailbox_black_flag; // remove the black flag
                 switch (value) {
                     case 0:
                         fen_symbol = 'p';
@@ -304,16 +305,52 @@ void board::print_mailbox() const {
             std::cout << std::endl;
     }
 }
-
-
 #endif
 
 
 
 void board::make_move(uint32_t move) {
-    // Todo
+
+    std::array<uint64_t, 6>& friendly_pieces = m_white_turn ? m_white : m_black;
+
+    const uint32_t from = move & move_gen::bitmask::from;
+    const uint32_t to = (move & move_gen::bitmask::to) >> move_gen::bitmask::to_offset;
+    const short from_piece_type = m_mailbox[from];
+
+
+    friendly_pieces[from_piece_type] &= ~(1ULL << from); // Remove the from square piece
+    friendly_pieces[from_piece_type] |= (1ULL << to); // Add the to square piece
+    // Todo: if king or rook move, then it needs to update the castling rights
+
+    const bool capture = (move & move_gen::bitmask::capture) >> move_gen::bitmask::capture_offset;
+    if (capture) {
+        // Remove the enemy piece
+        std::array<uint64_t, 6>& enemy_pieces = m_white_turn ? m_white : m_black;
+        const short to_piece_type = m_mailbox[to];
+        enemy_pieces[to_piece_type] &= ~(1ULL << to);
+    }
+
+    const bool enpassant = (move & move_gen::bitmask::enpassant) >> move_gen::bitmask::enpassant_offset;
+    if (enpassant) {
+        // Remove the enemy pawn
+        std::array<uint64_t, 6>& enemy_pieces = m_white_turn ? m_white : m_black;
+        // Todo: remove the enemy pawn
+    }
+
+    const uint32_t castling = (move & move_gen::bitmask::castling) >> move_gen::bitmask::castling_offset;
+    if (castling) {
+        // bit mask for each case
+    }
+
+
+    const uint32_t promotion = (move & move_gen::bitmask::promotion) >> move_gen::bitmask::promotion_offset;
+    if (promotion) {
+        // Remove the from piece
+    }
 
 
 
-    return;
+    m_fullmove_clock++;
+    // Todo: update the m_halfmove_clock
+
 }

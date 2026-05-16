@@ -94,7 +94,7 @@ private:
 
     // Lookup for faster piece type on a square
     std::array<unsigned short, 64> m_mailbox;
-    constexpr static unsigned short m_mailbox_colour_flag{1 << 4}; // 4th bit used as colour flag since you can't differentiate 0 and -0 as white / black pawns
+    constexpr static unsigned short m_mailbox_black_flag{1 << 4}; // 4th bit used as colour flag since you can't differentiate 0 and -0 as white / black pawns
 
 
     enum castling_flags {

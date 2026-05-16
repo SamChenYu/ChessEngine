@@ -40,15 +40,17 @@ int main() {
 
 
 
-        std::cout << "White occupancy: " << std::endl;
-        b1.print_bitboard(b1.get_white_occupancy_board());
-        std::cout << "Black occupancy: s " << std::endl;
-        b1.print_bitboard(b1.get_black_occupancy_board());
+        // std::cout << "White occupancy: " << std::endl;
+        // b1.print_bitboard(b1.get_white_occupancy_board());
+        // std::cout << "Black occupancy: s " << std::endl;
+        // b1.print_bitboard(b1.get_black_occupancy_board());
+        //
+        //
+        // std::cout << "Evaluation: " << eval::get_eval(b1) << "\n";
 
-
-        std::cout << "Evaluation: " << eval::get_eval(b1) << "\n";
+        std::cout << "Moves: " << std::endl;
         std::vector<uint32_t> moves;
-        // move_gen::generate_legal_moves(b1, moves);
+        move_gen::generate_legal_moves(b1, moves);
 
         std::cout << "Enemy attack bitboards" << std::endl;
         auto attacks = move_gen::generate_enemy_attack_bitboard(b1);

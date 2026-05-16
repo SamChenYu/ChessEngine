@@ -5,17 +5,14 @@
 #include <vector>
 
 struct move_gen {
+
+
 public:
 
     // General Logic: Compute pseudo legal moves, validate with generate_enemy_attack_bitboard
 
     static void generate_legal_moves(const board& board, std::vector<uint32_t>& out);
     static uint64_t generate_enemy_attack_bitboard(const board& board); // Todo: make this private later
-private:
-    static void generate_pseudo_moves(const board& board, std::vector<uint32_t>& out);
-
-
-    inline static magic_bits::Attacks attacks;
 
     /*
         Moves are encoded into 32 bit integers
@@ -30,6 +27,13 @@ private:
         castling    =       0b00000000000000001100000000000000, castling_offset = 14,   // Interpreted as 01(king side), 10 (queen side)
         promotion   =       0b00000000000011110000000000000000, promotion_offset = 16,   // Interpreted as 0001 (knight), 0010 (bishop), 0100 (rook) 1000 (queen)
     };
+
+
+private:
+    static void generate_pseudo_moves(const board& board, std::vector<uint32_t>& out);
+
+
+    inline static magic_bits::Attacks attacks;
 
     enum castling_bitmask : uint64_t {
         white_kingside_clear = (1ULL << 5) | (1ULL << 6),

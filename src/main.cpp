@@ -53,6 +53,9 @@ int main() {
         std::cout << "Enemy attack bitboards" << std::endl;
         auto attacks = move_gen::generate_enemy_attack_bitboard(b1);
         b1.print_bitboard(attacks);
+
+        std::cout << "Mailbox " << std::endl;
+        b1.print_mailbox();
 #endif
 
 

@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <vector>
 
+#define CPPCHESSENGINE_DEBUG
+
 board::board()
     : board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 {
@@ -162,6 +164,27 @@ board::board(const std::string& str) {
         throw std::invalid_argument("Invalid FEN string: invalid full move clock character");
     }
 
+
+
+    // Init the mailboxes
+    /*
+        OK this is quite poor tech debt
+        the enum PIECES has pawn = 0 etc ... which means that for the mailbox we can't differentiate
+        0 or -0 for white / black pawn. Instead I have chosen to use the 4th bit of the short as the colour flag
+        This is also why an empty square is the short max value
+     */
+    m_mailbox.fill(std::numeric_limits<short>::max());
+    for (int sq=0; sq<64; sq++) {
+        const uint64_t curr_square{1ULL << sq};
+        for (short i=0; i<6; i++) {
+            if (m_white[i] & curr_square) {
+                m_mailbox[sq] = i;
+            } else if (m_black[i] & curr_square) {
+                m_mailbox[sq] = (i | m_mailbox_colour_flag);
+            }
+        }
+    }
+
 }
 
 [[nodiscard]]
@@ -192,7 +215,105 @@ uint64_t board::get_black_occupancy_board() const {
     return result;
 }
 
+#ifdef CPPCHESSENGINE_DEBUG
+
+[[nodiscard]]
+std::array<uint64_t, 6> board::get_white_bitboards() const {
+    return m_white;
+}
+
+[[nodiscard]]
+std::array<uint64_t, 6> board::get_black_bitboards() const {
+    return m_black;
+}
+
+void board::print_bitboard(const uint64_t bb) const {
+    for (int rank = 7; rank >= 0; --rank) {
+        for (int file = 0; file < 8; ++file) {
+            const int square = rank * 8 + file;
+            std::cout << ((bb >> square) & 1ULL) << " ";
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+}
+
+static_assert(sizeof(short) == 2);
+
+void board::print_mailbox() const {
+    for (int i=0; i<64; i++) {
+
+        char fen_symbol;
+
+        if (auto value = m_mailbox[i]; value == std::numeric_limits<short>::max()) {
+            fen_symbol = '.';
+        } else {
+            // Todo: if I have any other uses this can be abstracted out into another function
+            if (value & m_mailbox_colour_flag) {
+                value &= ~m_mailbox_colour_flag; // remove the black flag
+                switch (value) {
+                    case 0:
+                        fen_symbol = 'p';
+                        break;
+                    case 1:
+                        fen_symbol = 'n';
+                        break;
+                    case 2:
+                        fen_symbol = 'b';
+                        break;
+                    case 3:
+                        fen_symbol = 'r';
+                        break;
+                    case 4:
+                        fen_symbol = 'q';
+                        break;
+                    case 5:
+                        fen_symbol = 'k';
+                        break;
+                    default:
+                        fen_symbol = '!'; // Assume something went wrong
+                }
+            } else {
+                switch (value) {
+                    case 0:
+                        fen_symbol = 'P';
+                        break;
+                    case 1:
+                        fen_symbol = 'N';
+                        break;
+                    case 2:
+                        fen_symbol = 'B';
+                        break;
+                    case 3:
+                        fen_symbol = 'R';
+                        break;
+                    case 4:
+                        fen_symbol = 'Q';
+                        break;
+                    case 5:
+                        fen_symbol = 'K';
+                        break;
+                    default:
+                        fen_symbol = '!'; // Assume something went wrong
+                }
+            }
+        }
+        std::cout << " " << fen_symbol << " ";
+
+        if ((i+1)%8 == 0)
+            std::cout << std::endl;
+    }
+}
+
+
+#endif
+
+
+
 void board::make_move(uint32_t move) {
     // Todo
+
+
+
     return;
 }

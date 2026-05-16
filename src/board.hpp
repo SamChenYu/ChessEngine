@@ -4,6 +4,12 @@
 #include <ranges>
 #include "engine/algorithms/eval.hpp"
 
+#define CPPCHESSENGINE_DEBUG
+
+#ifdef CPPCHESSENGINE_DEBUG
+#include <array>
+#endif
+
 class board {
 
     friend struct eval;
@@ -33,27 +39,16 @@ public:
 
 #ifdef CPPCHESSENGINE_DEBUG
 
-#include <array>
-    [[nodiscard]]
-    std::array<uint64_t, 6> get_white_bitboards() const {
-        return m_white;
-    }
+[[nodiscard]]
+std::array<uint64_t, 6> get_white_bitboards() const;
 
-    [[nodiscard]]
-    std::array<uint64_t, 6> get_black_bitboards() const {
-        return m_black;
-    }
+[[nodiscard]]
+std::array<uint64_t, 6> get_black_bitboards() const;
 
-    void print_bitboard(const uint64_t bb) const {
-        for (int rank = 7; rank >= 0; --rank) {
-            for (int file = 0; file < 8; ++file) {
-                const int square = rank * 8 + file;
-                std::cout << ((bb >> square) & 1ULL) << " ";
-            }
-            std::cout << "\n";
-        }
-        std::cout << "\n";
-    }
+void print_bitboard(const uint64_t bb) const;
+
+void print_mailbox() const;
+
 #endif
 
     enum PIECES {
@@ -96,6 +91,11 @@ private:
     int m_enpassant;
     int m_halfmove_clock;
     int m_fullmove_clock;
+
+    // Lookup for faster piece type on a square
+    std::array<unsigned short, 64> m_mailbox;
+    constexpr static unsigned short m_mailbox_colour_flag{1 << 4}; // 4th bit used as colour flag since you can't differentiate 0 and -0 as white / black pawns
+
 
     enum castling_flags {
         white_king_side = 0b1000,

@@ -4,8 +4,6 @@
 #include <ranges>
 #include "engine/algorithms/eval.hpp"
 
-#define CPPCHESSENGINE_DEBUG
-
 #ifdef CPPCHESSENGINE_DEBUG
 #include <array>
 #endif
@@ -14,6 +12,7 @@ class board {
 
     friend struct eval;
     friend struct move_gen;
+    friend struct engine;
 
 public:
 
@@ -35,7 +34,7 @@ public:
     [[nodiscard]]
     uint64_t get_black_occupancy_board() const;
 
-    void make_move(uint32_t move);
+    void make_move(const uint32_t move);
 
 #ifdef CPPCHESSENGINE_DEBUG
 
@@ -100,8 +99,10 @@ private:
     enum castling_flags {
         white_king_side = 0b1000,
         white_queen_side = 0b0100,
+        white_flags = 0b1100,
         black_king_side = 0b0010,
         black_queen_side = 0b0001,
+        black_flags = 0b0011,
     };
     
 };

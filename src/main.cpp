@@ -1,5 +1,6 @@
 #define CPPCHESSENGINE_DEBUG
 #define CPPCHESSENGINE_PRINT
+// #define CPPCHESSENGINE_MOVE_DEBUG
 
 #include <iostream>
 #include <string>
@@ -7,8 +8,9 @@
 #include "engine/algorithms/eval.hpp"
 
 #include <vector>
-#include "engine/algorithms/move_gen.hpp"
 
+#include "engine/algorithms/move_gen.hpp"
+#include "engine/engine.hpp"
 
 
 int main() {
@@ -17,7 +19,6 @@ int main() {
     std::string input;
     std::getline(std::cin, input);
 #else
-    // std::string input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     std::string input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 #endif
 
@@ -48,16 +49,22 @@ int main() {
         //
         // std::cout << "Evaluation: " << eval::get_eval(b1) << "\n";
 
-        std::cout << "Moves: " << std::endl;
-        std::vector<uint32_t> moves;
-        move_gen::generate_legal_moves(b1, moves);
+        // std::cout << "Moves: " << std::endl;
+        // std::vector<uint32_t> moves;
+        // move_gen::generate_legal_moves(b1, moves);
+        //
+        // std::cout << "Enemy attack bitboards" << std::endl;
+        // auto attacks = move_gen::generate_enemy_attack_bitboard(b1);
+        // b1.print_bitboard(attacks);
+        //
+        // std::cout << "Mailbox " << std::endl;
+        // b1.print_mailbox();
 
-        std::cout << "Enemy attack bitboards" << std::endl;
-        auto attacks = move_gen::generate_enemy_attack_bitboard(b1);
-        b1.print_bitboard(attacks);
+        auto best_move{engine::start_minimax(b1, 5)};
+        move_gen::print_move(best_move);
 
-        std::cout << "Mailbox " << std::endl;
-        b1.print_mailbox();
+
+
 #endif
 
 

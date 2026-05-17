@@ -5,7 +5,7 @@
 #include <vector>
 #include "engine/algorithms/move_gen.hpp"
 
-#define CPPCHESSENGINE_DEBUG
+// #define CPPCHESSENGINE_DEBUG
 
 board::board()
     : board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
@@ -310,39 +310,53 @@ void board::print_mailbox() const {
 
 
 
-void board::make_move(uint32_t move) {
+void board::make_move(const uint32_t move) {
 
     std::array<uint64_t, 6>& friendly_pieces = m_white_turn ? m_white : m_black;
 
     const uint32_t from = move & move_gen::bitmask::from;
     const uint32_t to = (move & move_gen::bitmask::to) >> move_gen::bitmask::to_offset;
-    const short from_piece_type = m_white_turn ? m_mailbox[from] : m_mailbox[from] & ~m_mailbox_black_flag;
+    const unsigned short from_piece_type = m_white_turn ? m_mailbox[from] : m_mailbox[from] & ~m_mailbox_black_flag;
 
 
     friendly_pieces[from_piece_type] &= ~(1ULL << from); // Remove the piece at the 'from' square
     m_mailbox[from] = std::numeric_limits<short>::max(); // Remove the piece from the mailbox
 
-    // Todo: if king or rook move, then it needs to update the castling rights
+    // If king or rook move, then it needs to update the castling rights
     if (from_piece_type == PIECES::KING) {
-        // Remove castling rights
+        m_castling = m_white_turn ? m_castling | castling_flags::black_flags : m_castling | castling_flags::white_flags;
     }
     if (from_piece_type == PIECES::ROOK) {
-        // Remove castling rights
+        if (m_white_turn) {
+            if (from == 0)
+                m_castling &= ~white_queen_side;
+            else if (from == 7)
+                m_castling &= ~white_king_side;
+        } else {
+            if (from == 56)
+                m_castling &= ~black_queen_side;
+            else if (from == 63)
+                m_castling &= ~black_king_side;
+        }
     }
 
     if (const uint32_t promotion = (move & move_gen::bitmask::promotion) >> move_gen::bitmask::promotion_offset) {
         switch (promotion) {
             case 1:
                 friendly_pieces[PIECES::KNIGHT] |= (1ULL << to);
+                m_mailbox[to] = m_white_turn ? PIECES::KNIGHT : PIECES::KNIGHT | m_mailbox_black_flag;
                 break;
             case 2:
                 friendly_pieces[PIECES::BISHOP] |= (1ULL << to);
+                m_mailbox[to] = m_white_turn? PIECES::BISHOP : PIECES::BISHOP | m_mailbox_black_flag;
                 break;
             case 3:
                 friendly_pieces[PIECES::ROOK] |= (1ULL << to);
+                m_mailbox[to] = m_white_turn ? PIECES::ROOK : PIECES::ROOK | m_mailbox_black_flag;
                 break;
             case 4:
                 friendly_pieces[PIECES::QUEEN] |= (1ULL << to);
+                m_mailbox[to] = m_white_turn? PIECES::QUEEN : PIECES::QUEEN | m_mailbox_black_flag;
                 break;
             default:
                 throw std::runtime_error("board::make_move promotion branch unrecognised promotion bitmask");
@@ -356,7 +370,7 @@ void board::make_move(uint32_t move) {
     if (capture) {
         // Remove the enemy piece
         std::array<uint64_t, 6>& enemy_pieces = m_white_turn ? m_white : m_black;
-        const short to_piece_type = m_mailbox[to];
+        const unsigned short to_piece_type = m_mailbox[to];
         enemy_pieces[to_piece_type] &= ~(1ULL << to);
     }
 
@@ -367,7 +381,7 @@ void board::make_move(uint32_t move) {
     }
 
     if (const uint32_t castling = (move & move_gen::bitmask::castling) >> move_gen::bitmask::castling_offset) {
-        // bit mask for each case
+        // Todo bit mask for each case
     }
 
     // Half move clock: reset to 0 if pawn move or not a capture move. Otherwise reset to 0

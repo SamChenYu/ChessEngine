@@ -1,6 +1,16 @@
 # C++ Chess Engine
 
+- [x] Minimax with alpha beta pruning
+- [ ] Validate legal moves (currently using psuedo legal moves)
+- [ ] Complete board::make_move
+- [ ] Implement transposition table
+- [ ] Optimize move generation (currently copying board states intead of move / unmove)
+- [ ] Fix horrible debug defines
+
+Current benchmark from starting position ~127,000 nodes per second.
+
 ## Quick Lookup
+
 
 ``` c++
     // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR

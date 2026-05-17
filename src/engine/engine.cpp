@@ -1,16 +1,38 @@
+#define CPPCHESSENGINE_DEBUG
+
 #include "engine.hpp"
-
 #include <limits>
-
 #include "algorithms/eval.hpp"
 #include "algorithms/move_gen.hpp"
 
-int engine::max_depth = 5;
+#ifdef CPPCHESSENGINE_DEBUG
+#include <iostream>
+#endif
 
+[[nodiscard]]
+uint32_t engine::start_minimax(const board& b, int max_depth) {
+#ifdef CPPCHESSENGINE_DEBUG
+    s_nodes_searched = 0;
+#endif
+    s_max_depth = max_depth;
+    s_best_move_eval = b.m_white_turn ?
+        minimax(b, 0, std::numeric_limits<float>::max(), std::numeric_limits<float>::min(), true) :
+        minimax(b,0, std::numeric_limits<float>::max(), std::numeric_limits<float>::min(), false);
+#ifdef CPPCHESSENGINE_DEBUG
+    std::cout << "Nodes searched : " << s_nodes_searched << std::endl;
+#endif
+    return s_best_move;
+}
+
+[[nodiscard]]
 float engine::minimax(const board& b, int depth, float alpha, float beta, bool is_maximising) {
 
-    if (depth == engine::max_depth)
+    if (depth == engine::s_max_depth)
         return eval::get_eval(b);
+
+#ifdef CPPCHESSENGINE_DEBUG
+    s_nodes_searched++;
+#endif
 
     std::vector<uint32_t> moves;
     move_gen::generate_legal_moves(b, moves);
@@ -18,42 +40,47 @@ float engine::minimax(const board& b, int depth, float alpha, float beta, bool i
     if (is_maximising) {
         float best_val = std::numeric_limits<float>::lowest();
 
-
-        for (auto move: moves) {
-            board new_board{b}; // New allocation
+        for (auto move : moves) {
+            board new_board{b};
             new_board.make_move(move);
+
             float temp_val = minimax(new_board, depth + 1, alpha, beta, false);
 
-            if (temp_val >= best_val) {
+            if (temp_val > best_val) {
                 best_val = temp_val;
-            }
-            if (alpha >= best_val) {
-                alpha = best_val;
+
+                if (depth == 0)
+                    s_best_move = move;
             }
 
-            // Pruning
+            alpha = std::max(alpha, best_val);
+
             if (beta <= alpha)
                 break;
         }
         return best_val;
-    } else {
-        float least_val = std::numeric_limits<float>::max();
-        for (auto move: moves) {
-            board new_board{b}; // New allocation
-            new_board.make_move(move);
-            float temp_val = minimax(new_board, depth + 1, alpha, beta, true);
-            // revert move here if I am add it later
+    }
+    else {
+        float best_val = std::numeric_limits<float>::max();
 
-            if (temp_val <= least_val) {
-                least_val = temp_val;
+        for (auto move : moves) {
+            board new_board{b};
+            new_board.make_move(move);
+
+            float temp_val = minimax(new_board, depth + 1, alpha, beta, true);
+
+            if (temp_val < best_val) {
+                best_val = temp_val;
+
+                if (depth == 0)
+                    s_best_move = move;
             }
-            // Confirm if it isn't actually just:
-            // beta = std::max(alpha, least_val);
-            beta = std::min(beta, least_val);
+
+            beta = std::min(beta, best_val);
 
             if (beta <= alpha)
                 break;
         }
-        return least_val;
+        return best_val;
     }
 }

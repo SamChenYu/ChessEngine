@@ -3,7 +3,10 @@
 #include <cmath>
 #include "pst.hpp"
 
+static_assert(pst::PAWN[pst::mirror(0)] == pst::PAWN[56]);
+
 float eval::get_eval(const board& b) {
+
 
     int white_material{0}, black_material{0};
     int white_pos{0}, black_pos{0};
@@ -16,13 +19,13 @@ float eval::get_eval(const board& b) {
         black_material += std::popcount(b_board) * pst::PIECE_VALUES[i];
 
         while (w_board) {
-            int next_sq = std::countr_zero(w_board);
+            const int next_sq = std::countr_zero(w_board);
             white_pos += pst::PST[i][pst::mirror(next_sq)];
             w_board &= w_board - 1;
         }
 
         while (b_board) {
-            int next_sq = std::countr_zero(b_board);
+            const int next_sq = std::countr_zero(b_board);
             black_pos += pst::PST[i][next_sq];
             b_board &= b_board - 1;
         }

@@ -98,7 +98,10 @@ private:
         return table;
     }
 
+
+
 #ifdef CPPCHESSENGINE_DEBUG
+public:
     static void print_move(uint32_t move) {
         uint32_t from = move & bitmask::from;
         uint32_t to = (move & bitmask::to) >> bitmask::to_offset;

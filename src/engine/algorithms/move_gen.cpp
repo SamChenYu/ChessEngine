@@ -1,11 +1,9 @@
-#define CPPCHESSENGINE_DEBUG
-
 #include "move_gen.hpp"
 #include "../../board.hpp"
 #include "../../../external/magic-bits/include/magic_bits.hpp"
 #include <vector>
 
-#ifdef CPPCHESSENGINE_DEBUG
+#ifdef CPPCHESSENGINE_MOVE_DEBUG
 #include <iostream>
 #endif
 
@@ -255,7 +253,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         }
     }
 
-#ifdef CPPCHESSENGINE_DEBUG
+#ifdef CPPCHESSENGINE_MOVE_DEBUG
     std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
     std::cout << "Pawns: " << std::endl;
     b.print_bitboard(pawns);
@@ -296,7 +294,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         int next_bishop = std::countr_zero(bishops);
         uint64_t bishop_moves = attacks.Bishop(occupancy_bb, next_bishop);              // Generates the psuedo legal moves (including potential friendly captures)
         bishop_moves = bishop_moves & ~friendly_occupancy_bb;                           // Removes the friendly captures
-#ifdef CPPCHESSENGINE_DEBUG
+#ifdef CPPCHESSENGINE_MOVE_DEBUG
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
         std::cout << "Bishops moves: " << std::endl;
         b.print_bitboard(bishop_moves);
@@ -324,7 +322,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         uint64_t rook_moves = attacks.Rook(occupancy_bb, next_rook);
         rook_moves = rook_moves & ~friendly_occupancy_bb;
 
-#ifdef CPPCHESSENGINE_DEBUG
+#ifdef CPPCHESSENGINE_MOVE_DEBUG
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
         std::cout << "Rook moves: " << std::endl;
         b.print_bitboard(rook_moves);
@@ -351,7 +349,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         int next_queen = std::countr_zero(queens);
         uint64_t queen_moves = attacks.Queen(occupancy_bb, next_queen);
         queen_moves = queen_moves & ~friendly_occupancy_bb;
-#ifdef CPPCHESSENGINE_DEBUG
+#ifdef CPPCHESSENGINE_MOVE_DEBUG
         std::cout << __FILE__ << ":" << __LINE__ << " (" << __func__ << ") "  << "\n";
         std::cout << "Queen moves: " << std::endl;
         b.print_bitboard(queen_moves);
@@ -474,7 +472,7 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
 
 
 
-#ifdef CPPCHESSENGINE_DEBUG
+#ifdef CPPCHESSENGINE_MOVE_DEBUG
 std::cout << out.size() << " Moves: " << std::endl;
 for (auto move : out) {
     print_move(move);

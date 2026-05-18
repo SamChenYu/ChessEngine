@@ -48,23 +48,18 @@ float eval::get_eval(const board& b) {
 
     float position_weight = 1.0f - material_weight;
 
-    // Todo: no clue what I previously wrote here, will need to revisit this later
-    int material_diff_prev = white_material - black_material;
-    float material_value;
-    if (material_diff_prev > 0) {
-        material_value = 1.0f / (1.1f + std::exp(-(material_diff) + 4));
-    } else if (material_diff_prev < 0) {
-        material_diff_prev *= -1;
-        material_value = 1.0f / (1.1f + std::exp(-(material_diff) + 4));
-        material_diff_prev *= -1;
-    } else {
-        material_value = 0.0f;
-    }
+    const int material_diff_signed = white_material - black_material;
+    float material_value = 1.0f / (1.1f + std::exp(-material_diff_signed + 4));
     material_value *= material_weight;
 
     constexpr int position_scalar = 1169; // max points given full traditional board
 
-    float white_pos_value = (white_pos / position_scalar) * position_weight;
-    float black_pos_value = (black_pos / position_scalar) * position_weight;
-    return (white_pos_value - black_pos_value + material_value);
+    const float white_pos_value =
+        (static_cast<float>(white_pos) / position_scalar) * position_weight;
+
+    const float black_pos_value =
+        (static_cast<float>(black_pos) / position_scalar) * position_weight;
+
+    const float eval = white_pos_value - black_pos_value + material_value;
+    return eval;
 }

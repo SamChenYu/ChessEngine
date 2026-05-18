@@ -16,8 +16,8 @@ uint32_t engine::start_minimax(const board& b, int max_depth) {
 #endif
     s_max_depth = max_depth;
     s_best_move_eval = b.m_white_turn ?
-        minimax(b, 0, std::numeric_limits<float>::max(), std::numeric_limits<float>::min(), true) :
-        minimax(b,0, std::numeric_limits<float>::max(), std::numeric_limits<float>::min(), false);
+        minimax(b, 0, std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max(), true) :
+        minimax(b,0, std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max(), false);
 #ifdef CPPCHESSENGINE_DEBUG
     std::cout << "Nodes searched : " << s_nodes_searched << std::endl;
 #endif
@@ -45,10 +45,12 @@ float engine::minimax(const board& b, int depth, float alpha, float beta, bool i
             new_board.make_move(move);
 
             float temp_val = minimax(new_board, depth + 1, alpha, beta, false);
-
+#ifdef CPPCHESSENGINE_DEBUG
+            // std::cout << "Temp val " << temp_val << std::endl;
+            // move_gen::print_move(move);
+#endif
             if (temp_val > best_val) {
                 best_val = temp_val;
-
                 if (depth == 0)
                     s_best_move = move;
             }

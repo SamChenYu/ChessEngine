@@ -49,7 +49,7 @@ float eval::get_eval(const board& b) {
     float position_weight = 1.0f - material_weight;
 
     const int material_diff_signed = white_material - black_material;
-    float material_value = 1.0f / (1.1f + std::exp(-material_diff_signed + 4));
+    float material_value = static_cast<float>(material_diff_signed) * material_weight;
     material_value *= material_weight;
 
     constexpr int position_scalar = 1169; // max points given full traditional board

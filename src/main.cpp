@@ -63,7 +63,7 @@ int main() {
 
 
         clock_t start = clock();
-        auto best_move{engine::start_minimax(b1, 7)};
+        auto best_move{engine::start_minimax(b1, 9)};
         clock_t end = clock();
         double time_taken = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
         std::cout << "Time taken: " << time_taken << " ms" << std::endl;

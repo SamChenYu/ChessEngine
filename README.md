@@ -7,7 +7,7 @@
 - [ ] Optimize move generation (currently copying board states intead of move / unmove)
 - [ ] Fix horrible debug defines
 
-Current benchmark from starting position ~127,000 nodes per second.
+Current benchmark on `-O3` from starting position depth 9 single threaded averaging ~3.9 million nodes per second (M1 Max).
 
 ## Quick Lookup
 

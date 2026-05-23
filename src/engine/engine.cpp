@@ -35,7 +35,7 @@ float engine::minimax(const board& b, int depth, float alpha, float beta, bool i
 #endif
 
     std::vector<uint32_t> moves;
-    move_gen::generate_legal_moves(b, moves);
+    move_gen::generate_pseudo_moves(b, moves);
 
     if (is_maximising) {
         float best_val = std::numeric_limits<float>::lowest();

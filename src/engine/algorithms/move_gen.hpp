@@ -8,12 +8,11 @@ struct move_gen {
 
 
 public:
-
-    // General Logic: Compute pseudo legal moves, validate with generate_enemy_attack_bitboard
-
-    static void generate_legal_moves(const board& board, std::vector<uint32_t>& out);
-    static uint64_t generate_enemy_attack_bitboard(const board& board); // Todo: make this private later
-
+    // General logic: compute pseudo moves, only check legality whilst making them in the search function
+    static void generate_pseudo_moves(const board& board, std::vector<uint32_t>& out);
+    static bool is_legal(const board& board);
+    static uint64_t generate_enemy_attack_bitboard(const board& board);
+    static uint64_t generate_friendly_attack_bitboard(const board& board);
     /*
         Moves are encoded into 32 bit integers
         // General search is going to be made by copying board states,
@@ -30,7 +29,6 @@ public:
 
 
 private:
-    static void generate_pseudo_moves(const board& board, std::vector<uint32_t>& out);
 
 
     inline static magic_bits::Attacks attacks;

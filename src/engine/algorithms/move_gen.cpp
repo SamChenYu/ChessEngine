@@ -7,14 +7,10 @@
 #include <iostream>
 #endif
 
-void move_gen::generate_legal_moves(const board& b, std::vector<uint32_t>& out) {
-    generate_pseudo_moves(b, out);
-    // To take note: cancel castling rights if enemy attacks in between squares
-}
 
 void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out) {
 
-    out.reserve(100);
+    out.reserve(50);
     const uint64_t occupancy_bb{b.get_occupancy_board()};
     const std::array<uint64_t, 6>& friendly_pieces = b.m_white_turn ? b.m_white : b.m_black;
     const std::array<uint64_t, 6>& enemy_pieces = b.m_white_turn? b.m_black : b.m_white;
@@ -468,10 +464,6 @@ void move_gen::generate_pseudo_moves(const board &b, std::vector<uint32_t>& out)
         }
     }
 
-
-
-
-
 #ifdef CPPCHESSENGINE_MOVE_DEBUG
 std::cout << out.size() << " Moves: " << std::endl;
 for (auto move : out) {
@@ -480,6 +472,99 @@ for (auto move : out) {
 #endif
 }
 
+bool move_gen::is_legal(const board& b) {
+    // Ok so semantically this is going to be a bit weird
+    // the search algorithm will apply the move to the board
+    // this means that the m_white_turn has already flipped
+    // so what we need to do here is
+    //      !!! Check if the current player can capture the enemy king !!!
+    // If we can, then we know the move made was illegal
+
+    // This is also why we have generate_friendly_attack_bitboards!
+    // (The enemy_attack_bitboard just exists at this moment for parity sake)
+
+    const uint64_t current_enemy_attack_bb = generate_friendly_attack_bitboard(b);              // Intentionally flipped logic! (search algo already made the move)
+    const uint64_t& friendly_king = !b.m_white_turn ? b.m_white[b.PIECES::KING] : b.m_black[b.PIECES::KING] ;   // Intentionally flipped logic! (search algo already made the move)
+
+    return (friendly_king & current_enemy_attack_bb) != 0;
+}
+
+uint64_t move_gen::generate_friendly_attack_bitboard(const board& b) {
+    uint64_t enemy_attack_bitboard {0Ull};
+    const std::array<uint64_t, 6>& friendly_pieces = !b.m_white_turn ? b.m_white : b.m_black;
+    const std::array<uint64_t, 6>& enemy_pieces = !b.m_white_turn? b.m_black : b.m_white;
+
+    uint64_t friendly_occupancy_bb{0};
+    uint64_t enemy_occupancy_bb{0};
+    for (int i=0; i<6; i++) {
+        friendly_occupancy_bb |= friendly_pieces[i];
+        enemy_occupancy_bb |= enemy_pieces[i];
+    }
+    uint64_t occupancy_bb{friendly_occupancy_bb};
+    occupancy_bb |= enemy_occupancy_bb;
+
+    // Pawns
+    uint64_t enemy_pawns = enemy_pieces[board::PAWN];
+    // Branching off for white / black because bit shifting by negative numbers is UB
+    if (b.m_white_turn) {
+        const uint64_t right_captures{ ((enemy_pawns & ~board::FILES::H) << 9)};
+        enemy_attack_bitboard |= right_captures;
+        const uint64_t left_captures{ ((enemy_pawns & ~board::FILES::A) << 7)};
+        enemy_attack_bitboard |= left_captures;
+    } else {
+        const uint64_t left_captures{ ((enemy_pawns & ~board::FILES::A) >> 9)};
+        enemy_attack_bitboard |= left_captures;
+        const uint64_t right_captures{ ((enemy_pawns & ~board::FILES::H) >> 7)};
+        enemy_attack_bitboard|= right_captures;
+    }
+
+    // Knights
+    uint64_t enemy_knights = enemy_pieces[board::KNIGHT];
+    constexpr static std::array<uint64_t, 64> knight_table{generate_knight_table()};
+    while (enemy_knights) {
+        const uint32_t next_knight = std::countr_zero(enemy_knights);
+        enemy_attack_bitboard |= knight_table[next_knight];
+        enemy_knights &= enemy_knights -1 ;
+    }
+
+    // Bishops
+    uint64_t enemy_bishops = enemy_pieces[board::BISHOP];
+    while (enemy_bishops) {
+        const int next_bishop = std::countr_zero(enemy_bishops);
+        uint64_t bishop_moves = attacks.Bishop(occupancy_bb, next_bishop);
+        enemy_attack_bitboard |= bishop_moves;
+        enemy_bishops &= enemy_bishops -1;
+    }
+
+    // Rooks
+    uint64_t enemy_rooks = enemy_pieces[board::ROOK];
+    while (enemy_rooks) {
+        const int next_rook = std::countr_zero(enemy_rooks);
+        uint64_t rook_moves = attacks.Rook(occupancy_bb, next_rook);
+        enemy_attack_bitboard |= rook_moves;
+        enemy_rooks &= enemy_rooks -1;
+    }
+
+    // Queen
+    uint64_t enemy_queens = enemy_pieces[board::QUEEN];
+    while (enemy_queens) {
+        const int next_queen = std::countr_zero(enemy_queens);
+        uint64_t queen_moves = attacks.Queen(occupancy_bb, next_queen);
+        enemy_attack_bitboard |= queen_moves;
+        enemy_queens &= enemy_queens -1;
+    }
+
+    // King
+    uint64_t enemy_kings = enemy_pieces[board::KING];
+    constexpr static std::array<uint64_t, 64> king_table{generate_king_table()};
+    while (enemy_kings) {
+        uint32_t next_king = std::countr_zero(enemy_kings);
+        enemy_attack_bitboard |= king_table[next_king];
+        enemy_kings &= enemy_kings -1;
+    }
+
+    return enemy_attack_bitboard;
+}
 
 uint64_t move_gen::generate_enemy_attack_bitboard(const board& b) {
     uint64_t enemy_attack_bitboard {0Ull};

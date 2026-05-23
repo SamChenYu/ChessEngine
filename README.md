@@ -1,10 +1,14 @@
 # C++ Chess Engine
 
 - [x] Minimax with alpha beta pruning
-- [ ] Validate legal moves (currently using psuedo legal moves)
+- [ ] Validate legal moves within the search algorithm
 - [ ] Complete board::make_move
-- [ ] Implement transposition table
-- [ ] Optimize move generation (currently copying board states intead of move / unmove)
+- [ ] Implement board::undo_move (needs to update the uint32_t moves)
+- [ ] Utilize undo_move instead of copy semantics and causing allocations
+
+Roadmap
+- [ ] Implement a better evaluation function
+- [ ] Implement transposition table / zobrist hashing
 - [ ] Fix horrible debug defines
 
 Current benchmark on `-O3` from starting position depth 9 single threaded averaging ~3.9 million nodes per second (M1 Max).
@@ -29,10 +33,6 @@ Current benchmark on `-O3` from starting position depth 9 single threaded averag
        1  a1 b1 c1 d1 e1 f1 g1 h1      [ 0][ 1][ 2][ 3][ 4][ 5][ 6][ 7]
 
           a  b  c  d  e  f  g  h
-
-
-
-
 
 
     Moves are encoded into 32 bit integers

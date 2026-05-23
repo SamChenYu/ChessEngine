@@ -40,8 +40,6 @@ int main() {
         //     b1.print_bitboard(board);
         // }
 
-
-
         // std::cout << "White occupancy: " << std::endl;
         // b1.print_bitboard(b1.get_white_occupancy_board());
         // std::cout << "Black occupancy: s " << std::endl;
@@ -61,19 +59,14 @@ int main() {
         // std::cout << "Mailbox " << std::endl;
         // b1.print_mailbox();
 
-
         clock_t start = clock();
-        auto best_move{engine::start_minimax(b1, 9)};
+        auto best_move{engine::start_minimax(b1, 3)};
         clock_t end = clock();
         double time_taken = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
         std::cout << "Time taken: " << time_taken << " ms" << std::endl;
         move_gen::print_move(best_move);
 
-
-
 #endif
-
-
         } catch (std::invalid_argument &e) {
         std::cout << e.what() << std::endl;
     }

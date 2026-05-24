@@ -43,10 +43,6 @@ float engine::minimax(const board& b, int depth, float alpha, float beta, bool i
             new_board.make_move(move);
 
             float temp_val = minimax(new_board, depth + 1, alpha, beta, false);
-            if constexpr (config::engine_debug) {
-                std::cout << "Temp val " << temp_val << std::endl;
-                move_gen::print_move(move);
-            }
             if (temp_val > best_val) {
                 best_val = temp_val;
                 if (depth == 0)

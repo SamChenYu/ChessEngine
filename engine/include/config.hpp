@@ -1,17 +1,11 @@
 #pragma once
 
 /*
-    Pass ENGINE_DEBUG, BOARD_DEBUG or MOVEGEN_DEBUG into the
-    CMake target compile definitions to enable any of these options
+    In CMakeLists.txt each separate executable library is compiled with different symbols
+    So that this file can be targetted with a different config
 
-        e.g.
-        target_compile_definitions(chesstests PRIVATE
-                ENGINE_DEBUG, BOARD_DEBUG, MOVEGEN_DEBUG
-        )
-
-        Within the hot paths these are using
-            if constexpr(config::engine_debug)
-        So this isn't affected within release builds
+    Within the engine and hot paths, the configs are treated with if constexpr
+    so that there isn't any performance drops for the release builds
  */
 
 

@@ -3,7 +3,7 @@
 #include "board.hpp"
 
 
-class engine {
+struct engine {
 
 public:
     [[nodiscard]]
@@ -15,7 +15,7 @@ private:
     inline static int s_max_depth;
     [[nodiscard]]
     static float minimax(const board& b, int depth, float alpha, float beta, bool is_maximising);
-#ifdef CPPCHESSENGINE_DEBUG
-    inline static int s_nodes_searched;
-#endif
+
+    inline static int s_nodes_searched; // engine_debug
+
 };

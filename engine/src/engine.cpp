@@ -1,26 +1,25 @@
 #define CPPCHESSENGINE_DEBUG
-
 #include "engine.hpp"
-#include <limits>
 #include "algorithms/eval.hpp"
 #include "algorithms/move_gen.hpp"
-
-#ifdef CPPCHESSENGINE_DEBUG
+#include "config.hpp"
+#include <limits>
 #include <iostream>
-#endif
+
 
 [[nodiscard]]
 uint32_t engine::start_minimax(const board& b, int max_depth) {
-#ifdef CPPCHESSENGINE_DEBUG
-    s_nodes_searched = 0;
-#endif
+    if constexpr (config::engine_debug)
+        s_nodes_searched = 0;
+
     s_max_depth = max_depth;
     s_best_move_eval = b.m_white_turn ?
         minimax(b, 0, std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max(), true) :
         minimax(b,0, std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max(), false);
-#ifdef CPPCHESSENGINE_DEBUG
-    std::cout << "Nodes searched : " << s_nodes_searched << std::endl;
-#endif
+
+    if constexpr (config::engine_debug)
+        std::cout << "Nodes searched : " << s_nodes_searched << std::endl;
+
     return s_best_move;
 }
 
@@ -30,9 +29,8 @@ float engine::minimax(const board& b, int depth, float alpha, float beta, bool i
     if (depth == engine::s_max_depth)
         return eval::get_eval(b);
 
-#ifdef CPPCHESSENGINE_DEBUG
-    s_nodes_searched++;
-#endif
+    if constexpr (config::engine_debug)
+        s_nodes_searched++;
 
     std::vector<uint32_t> moves;
     move_gen::generate_pseudo_moves(b, moves);
@@ -45,10 +43,10 @@ float engine::minimax(const board& b, int depth, float alpha, float beta, bool i
             new_board.make_move(move);
 
             float temp_val = minimax(new_board, depth + 1, alpha, beta, false);
-#ifdef CPPCHESSENGINE_DEBUG
-            // std::cout << "Temp val " << temp_val << std::endl;
-            // move_gen::print_move(move);
-#endif
+            if constexpr (config::engine_debug) {
+                std::cout << "Temp val " << temp_val << std::endl;
+                move_gen::print_move(move);
+            }
             if (temp_val > best_val) {
                 best_val = temp_val;
                 if (depth == 0)

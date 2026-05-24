@@ -10,24 +10,32 @@ add_library(enginelib
         engine/src/engine.cpp
         engine/src/eval.cpp
         engine/src/move_gen.cpp
+        engine/include/config.hpp
 )
 
 target_include_directories(enginelib PUBLIC
         external/magic-bits/include
         engine/include
-        apps
 )
+
+
 
 # Main application
-add_executable(CppChessEngine
-        apps/main.cpp
+add_executable(cli_chessengine
+        apps/cli_main.cpp
+)
+target_link_libraries(cli_chessengine PRIVATE enginelib)
+target_compile_definitions(cli_chessengine PRIVATE
+        ENGINE_DEBUG
 )
 
-target_link_libraries(CppChessEngine PRIVATE enginelib)
+
 
 # Tests executable
-add_executable(ChessTests
+add_executable(chesstests
         tests/test_main.cpp
 )
-
-target_link_libraries(ChessTests PRIVATE enginelib)
+target_link_libraries(chesstests PRIVATE enginelib)
+target_compile_definitions(chesstests PRIVATE
+        ENGINE_DEBUG, BOARD_DEBUG, MOVEGEN_DEBUG
+)

@@ -1,16 +1,12 @@
-#include "board.hpp"
-
-
 #include <charconv>
-#include "board.hpp"
 #include <iomanip>
 #include <limits>
 #include <ranges>
 #include <vector>
+
+#include "board.hpp"
 #include "algorithms/move_gen.hpp"
-
-
-// #define CPPCHESSENGINE_DEBUG
+#include "config.hpp"
 
 board::board()
     : board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
@@ -222,8 +218,6 @@ uint64_t board::get_black_occupancy_board() const {
     return result;
 }
 
-#ifdef CPPCHESSENGINE_DEBUG
-
 [[nodiscard]]
 std::array<uint64_t, 6> board::get_white_bitboards() const {
     return m_white;
@@ -311,9 +305,6 @@ void board::print_mailbox() const {
             std::cout << std::endl;
     }
 }
-#endif
-
-
 
 void board::make_move(const uint32_t move) {
 

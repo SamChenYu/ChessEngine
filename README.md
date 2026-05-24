@@ -9,7 +9,7 @@
 Roadmap
 - [ ] Implement a better evaluation function
 - [ ] Implement transposition table / zobrist hashing
-- [ ] Fix horrible debug defines
+- [x] Fix horrible debug defines
 
 Current benchmark on `-O3` from starting position depth 9 single threaded averaging ~3.9 million nodes per second (M1 Max).
 

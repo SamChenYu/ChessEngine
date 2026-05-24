@@ -1,12 +1,9 @@
 #pragma once
+#include "algorithms/eval.hpp"
 #include <cstdint>
 #include <iostream>
 #include <ranges>
-#include "algorithms/eval.hpp"
-
-#ifdef CPPCHESSENGINE_DEBUG
 #include <array>
-#endif
 
 class board {
 
@@ -36,19 +33,18 @@ public:
 
     void make_move(const uint32_t move);
 
-#ifdef CPPCHESSENGINE_DEBUG
 
-[[nodiscard]]
-std::array<uint64_t, 6> get_white_bitboards() const;
 
-[[nodiscard]]
-std::array<uint64_t, 6> get_black_bitboards() const;
+    [[nodiscard]]
+    std::array<uint64_t, 6> get_white_bitboards() const; // board_debug
 
-static void print_bitboard(const uint64_t bb);
+    [[nodiscard]]
+    std::array<uint64_t, 6> get_black_bitboards() const; // board_debug
 
-void print_mailbox() const;
+    static void print_bitboard(const uint64_t bb); // board_debug
 
-#endif
+    void print_mailbox() const; // board_debug
+
 
     enum PIECES {
         PAWN = 0,

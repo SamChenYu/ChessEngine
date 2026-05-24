@@ -7,13 +7,10 @@ namespace pst {
         1, 3, 3, 5, 9, 1000
     };
 
-
     inline constexpr int mirror(const int sq) {
         return sq ^ 56;
     }
 
-
-    // Todo: check that these align with the board.hpp bits
     constexpr std::array<int, 64> PAWN = {
          0,   0,   0,   0,   0,   0,  0,   0,
         -35, -1, -20, -23, -15, 24, 38, -22,

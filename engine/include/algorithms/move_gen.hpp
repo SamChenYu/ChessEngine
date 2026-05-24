@@ -5,8 +5,6 @@
 #include "board.hpp"
 
 struct move_gen {
-
-
 public:
     // General logic: compute pseudo moves, only check legality whilst making them in the search function
     static void generate_pseudo_moves(const board& board, std::vector<uint32_t>& out);
@@ -27,10 +25,18 @@ public:
         promotion   =       0b00000000000011110000000000000000, promotion_offset = 16,   // Interpreted as 0001 (knight), 0010 (bishop), 0100 (rook) 1000 (queen)
     };
 
+    // movegen_debug
+    static void print_move(uint32_t move) {
+        uint32_t from = move & bitmask::from;
+        uint32_t to = (move & bitmask::to) >> bitmask::to_offset;
+        uint32_t capture = (move & bitmask::capture) >> bitmask::capture_offset;
+        uint32_t enpassant = (move & bitmask::enpassant) >> bitmask::enpassant_offset;
+        uint32_t castling = (move & bitmask::castling) >> bitmask::castling_offset;
+        uint32_t promotion = (move & bitmask::promotion) >> bitmask::promotion_offset;
+        std::cout << "from:" << " " << from << " to:" << " " << to << " capture: " << capture << " enpasssant: " << enpassant << " castling: " << castling << " promotion: " << promotion << std::endl;
+    }
 
 private:
-
-
     inline static magic_bits::Attacks attacks;
 
     enum castling_bitmask : uint64_t {
@@ -95,20 +101,4 @@ private:
 
         return table;
     }
-
-
-
-#ifdef CPPCHESSENGINE_DEBUG
-public:
-    static void print_move(uint32_t move) {
-        uint32_t from = move & bitmask::from;
-        uint32_t to = (move & bitmask::to) >> bitmask::to_offset;
-        uint32_t capture = (move & bitmask::capture) >> bitmask::capture_offset;
-        uint32_t enpassant = (move & bitmask::enpassant) >> bitmask::enpassant_offset;
-        uint32_t castling = (move & bitmask::castling) >> bitmask::castling_offset;
-        uint32_t promotion = (move & bitmask::promotion) >> bitmask::promotion_offset;
-        std::cout << "from:" << " " << from << " to:" << " " << to << " capture: " << capture << " enpasssant: " << enpassant << " castling: " << castling << " promotion: " << promotion << std::endl;
-    }
-#endif
-
 };

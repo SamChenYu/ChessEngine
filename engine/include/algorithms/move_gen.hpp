@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../board.hpp"
-#include "../../../external/magic-bits/include/magic_bits.hpp"
 #include <vector>
+#include "magic_bits.hpp"
+#include "board.hpp"
 
 struct move_gen {
 

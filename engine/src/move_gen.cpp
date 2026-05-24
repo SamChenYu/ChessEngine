@@ -1,7 +1,7 @@
-#include "move_gen.hpp"
-#include "../../board.hpp"
-#include "../../../external/magic-bits/include/magic_bits.hpp"
+#include "algorithms/move_gen.hpp"
 #include <vector>
+#include "magic_bits.hpp"
+#include "board.hpp"
 
 #ifdef CPPCHESSENGINE_MOVE_DEBUG
 #include <iostream>

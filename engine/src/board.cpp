@@ -1,9 +1,14 @@
 #include "board.hpp"
+
+
 #include <charconv>
+#include "board.hpp"
 #include <iomanip>
 #include <limits>
+#include <ranges>
 #include <vector>
-#include "engine/algorithms/move_gen.hpp"
+#include "algorithms/move_gen.hpp"
+
 
 // #define CPPCHESSENGINE_DEBUG
 

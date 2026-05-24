@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../board.hpp"
+#include "board.hpp"
 
 
 class engine {

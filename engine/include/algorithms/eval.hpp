@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-#include "../../board.hpp"
+#include "board.hpp"
 
 class board;
 

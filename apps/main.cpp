@@ -2,16 +2,14 @@
 #define CPPCHESSENGINE_PRINT
 // #define CPPCHESSENGINE_MOVE_DEBUG
 
+#include <ctime>
 #include <iostream>
 #include <string>
-#include <ctime>
-#include "board.hpp"
-#include "engine/algorithms/eval.hpp"
-
 #include <vector>
 
-#include "engine/algorithms/move_gen.hpp"
-#include "engine/engine.hpp"
+#include <board.hpp>
+#include <algorithms/move_gen.hpp>
+#include <engine.hpp>
 
 
 int main() {

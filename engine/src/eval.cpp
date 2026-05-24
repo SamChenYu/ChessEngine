@@ -1,7 +1,7 @@
-#include "eval.hpp"
+#include "algorithms/eval.hpp"
 
 #include <cmath>
-#include "pst.hpp"
+#include "algorithms/pst.hpp"
 
 static_assert(pst::PAWN[pst::mirror(0)] == pst::PAWN[56]);
 

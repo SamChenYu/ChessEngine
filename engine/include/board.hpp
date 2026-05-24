@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <iostream>
 #include <ranges>
-#include "engine/algorithms/eval.hpp"
+#include "algorithms/eval.hpp"
 
 #ifdef CPPCHESSENGINE_DEBUG
 #include <array>

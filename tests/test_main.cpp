@@ -1,11 +1,20 @@
-#include <iostream>
+#include "test_board.hpp"
+#include "test_engine.hpp"
+#include "test_movegen.hpp"
 
-#define ENGINE_DEBUG
-#define BOARD_DEBUG
-#define MOVEGEN_DEBUG
+
+
+#include <iostream>
 
 int main() {
 
-    std::cout << "Hello world" << std::endl;
+    std::cout << "Board tests" << std::endl;
+    test_board::execute_tests();
+
+    std::cout << "MoveGen tests" << std::endl;
+    test_movegen::execute_tests();
+
+    std::cout << "Engine tests" << std::endl;
+    test_engine::execute_tests();
     return 0;
 }

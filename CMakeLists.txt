@@ -48,5 +48,8 @@ target_compile_definitions(enginelib_tests PRIVATE
 
 add_executable(chesstests
         tests/test_main.cpp
+        tests/test_board.hpp
+        tests/test_movegen.hpp
+        tests/test_engine.hpp
 )
 target_link_libraries(chesstests PRIVATE enginelib_tests)
